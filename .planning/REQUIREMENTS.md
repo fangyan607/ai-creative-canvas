@@ -98,42 +98,42 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CANVAS-01 | Phase 1 | Pending |
-| CANVAS-02 | Phase 1 | Pending |
-| CANVAS-03 | Phase 1 | Pending |
-| CANVAS-04 | Phase 1 | Pending |
-| CANVAS-05 | Phase 1 | Pending |
-| CANVAS-06 | Phase 1 | Pending |
-| NODE-01 | Phase 2 | Pending |
-| NODE-02 | Phase 2 | Pending |
-| NODE-03 | Phase 2 | Pending |
-| NODE-04 | Phase 2 | Pending |
-| NODE-05 | Phase 2 | Pending |
-| NODE-06 | Phase 2 | Pending |
-| NODE-07 | Phase 2 | Pending |
-| AI-01 | Phase 3 | Pending |
-| AI-02 | Phase 3 | Pending |
-| AI-03 | Phase 3 | Pending |
-| AI-04 | Phase 3 | Pending |
-| AI-05 | Phase 3 | Pending |
-| AI-06 | Phase 3 | Pending |
-| AI-07 | Phase 3 | Pending |
-| AI-08 | Phase 3 | Pending |
-| UI-01 | Phase 4 | Pending |
-| UI-02 | Phase 4 | Pending |
-| UI-03 | Phase 4 | Pending |
-| UI-04 | Phase 4 | Pending |
-| BKND-01 | Phase 4 | Pending |
-| BKND-02 | Phase 4 | Pending |
-| TEST-01 | Phase 5 | Pending |
-| TEST-02 | Phase 5 | Pending |
-| TEST-03 | Phase 5 | Pending |
+| CANVAS-01 | Phase 1 - Core Canvas | Pending |
+| CANVAS-02 | Phase 1 - Core Canvas | Pending |
+| CANVAS-03 | Phase 1 - Core Canvas | Pending |
+| CANVAS-04 | Phase 1 - Core Canvas | Pending |
+| CANVAS-05 | Phase 1 - Core Canvas | Pending |
+| CANVAS-06 | Phase 1 - Core Canvas | Pending |
+| NODE-01 | Phase 2 - Node Editor Interface | Pending |
+| NODE-02 | Phase 2 - Node Editor Interface | Pending |
+| NODE-03 | Phase 3 - Node Engine | Pending |
+| NODE-04 | Phase 2 - Node Editor Interface | Pending |
+| NODE-05 | Phase 2 - Node Editor Interface | Pending |
+| NODE-06 | Phase 3 - Node Engine | Pending |
+| NODE-07 | Phase 3 - Node Engine | Pending |
+| AI-01 | Phase 4 - AI Adapters | Pending |
+| AI-02 | Phase 4 - AI Adapters | Pending |
+| AI-03 | Phase 4 - AI Adapters | Pending |
+| AI-04 | Phase 5 - AI Execution Infrastructure | Pending |
+| AI-05 | Phase 4 - AI Adapters | Pending |
+| AI-06 | Phase 4 - AI Adapters | Pending |
+| AI-07 | Phase 5 - AI Execution Infrastructure | Pending |
+| AI-08 | Phase 5 - AI Execution Infrastructure | Pending |
+| UI-01 | Phase 7 - Application UI | Pending |
+| UI-02 | Phase 7 - Application UI | Pending |
+| UI-03 | Phase 7 - Application UI | Pending |
+| UI-04 | Phase 7 - Application UI | Pending |
+| BKND-01 | Phase 6 - Backend Services | Pending |
+| BKND-02 | Phase 6 - Backend Services | Pending |
+| TEST-01 | Phase 8 - Testing & Performance | Pending |
+| TEST-02 | Phase 8 - Testing & Performance | Pending |
+| TEST-03 | Phase 8 - Testing & Performance | Pending |
 
 **Coverage:**
-- v1 requirements: 29 total
-- Mapped to phases: 29
+- v1 requirements: 30 total
+- Mapped to phases: 30
 - Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-06-29*
-*Last updated: 2026-06-29 after initial definition*
+*Last updated: 2026-06-29 after roadmap creation*
