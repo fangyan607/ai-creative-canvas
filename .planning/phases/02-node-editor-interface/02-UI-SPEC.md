@@ -1,7 +1,8 @@
 ---
 phase: 2
 slug: node-editor-interface
-status: draft
+status: approved
+reviewed_at: 2026-06-29
 shadcn_initialized: true
 preset: base-nova
 created: 2026-06-29
@@ -36,7 +37,7 @@ created: 2026-06-29
 
 ## Spacing Scale
 
-Base unit: **8px** (Figma DESIGN.md convention). All values are multiples of 8.
+Base unit: **8px** (Figma DESIGN.md convention). All values are multiples of 4.
 
 | Token | Value | Usage |
 |-------|-------|-------|
@@ -59,7 +60,7 @@ Base unit: **8px** (Figma DESIGN.md convention). All values are multiples of 8.
 | Role | Size | Weight | Line Height | Used For |
 |------|------|--------|-------------|----------|
 | Body | 14px | 400 | 1.5 | Node labels, parameter values, panel body text, PropertyPanel content |
-| Label | 12px | 500 | 1.4 | PropertyPanel field labels, parameter group headers, tab labels |
+| Label | 12px | 600 | 1.4 | PropertyPanel field labels, parameter group headers, tab labels |
 | Heading | 16px | 600 | 1.3 | Panel headers ("Layers", "Properties"), node type titles, dialog titles |
 | Small | 11px | 400 | 1.3 | Captions, socket labels (hover), metadata, element counts |
 
