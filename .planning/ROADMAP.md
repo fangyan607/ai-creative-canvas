@@ -46,8 +46,14 @@ From foundation to full creative tool: we start by establishing the infinite can
   2. User can connect node output sockets to compatible input sockets with visible wires
   3. User can select a node and see/edit all its parameters in the right-side parameter panel
   4. User can save a node graph layout and reload it with all nodes, wires, and positions restored
-**Plans**: TBD
+**Plans**: 5 plans in 4 waves
 **UI hint**: yes
+**Plan list:**
+- [ ] 02-01-PLAN.md — Contracts + branding: shared node graph types, coordinate transforms, Chinese README, Excalidraw sync check (Wave 1)
+- [ ] 02-02-PLAN.md — NodeGraphStore: full Zustand+Immer store with tests, delete stub (Wave 2)
+- [ ] 02-03-PLAN.md — Node editor package: @ac-canvas/node-editor, 5 node components, ConnectionValidator (Wave 2)
+- [ ] 02-04-PLAN.md — Interactive UI: NodeEditorOverlay, PropertyPanel, FocusModeToggle, TemplateDialog (Wave 3)
+- [ ] 02-05-PLAN.md — Integration: persistence, HistoryStore, App.tsx layout wiring, checkpoint verification (Wave 4)
 
 ### Phase 3: Node Engine
 **Goal**: Node graphs execute in correct topological order with incremental updates and organizational structure
@@ -104,7 +110,6 @@ From foundation to full creative tool: we start by establishing the infinite can
   3. User can export the current canvas as PNG or JPG with configurable resolution
   4. User can navigate to a settings page and configure AI API keys, default provider, and other preferences
 **Plans**: TBD
-**UI hint**: yes
 
 ### Phase 8: Testing & Performance
 **Goal**: Critical paths and edge cases are covered by automated tests
@@ -124,7 +129,7 @@ From foundation to full creative tool: we start by establishing the infinite can
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Core Canvas | 6/6 | Complete    | 2026-06-29 |
-| 2. Node Editor Interface | 0/0 | Not started | - |
+| 2. Node Editor Interface | 0/5 | Not started | - |
 | 3. Node Engine | 0/0 | Not started | - |
 | 4. AI Adapters | 0/0 | Not started | - |
 | 5. AI Execution Infrastructure | 0/0 | Not started | - |
