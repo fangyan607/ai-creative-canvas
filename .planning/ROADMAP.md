@@ -6,7 +6,7 @@ From foundation to full creative tool: we start by establishing the infinite can
 
 ## Phases
 
-- [ ] **Phase 1: Core Canvas** - Excalidraw fork with infinite canvas, element management, undo/redo, chunk rendering, and IndexedDB persistence
+- [x] **Phase 1: Core Canvas** - Excalidraw fork with infinite canvas, element management, undo/redo, chunk rendering, and IndexedDB persistence (completed 2026-06-29)
 - [ ] **Phase 2: Node Editor Interface** - React Flow integration with 5 node types, drag-connect, parameter panel, and graph serialization
 - [ ] **Phase 3: Node Engine** - Topological sort execution, parallel/incremental DAG execution, node undo/redo, and sub-group support
 - [ ] **Phase 4: AI Adapters** - OpenAI and Stability.ai adapters, MockAdapter, BYOK mode, and Prompt builder system
@@ -27,8 +27,15 @@ From foundation to full creative tool: we start by establishing the infinite can
   3. User can undo/redo all canvas operations (draw, move, delete, layer change)
   4. User can save a project to IndexedDB and reload it to restore exact canvas state
   5. Canvas maintains smooth 60fps with 500+ elements rendered (chunk rendering active)
-**Plans**: TBD
+**Plans**: 6 plans in 4 waves
 **UI hint**: yes
+**Plan list:**
+- [x] 01-01-PLAN.md — Monorepo foundation: pnpm workspace, vendored Excalidraw fork, shared types, Vite 8 SPA skeleton
+- [x] 01-02-PLAN.md — Stores & AIElement: CanvasStore, HistoryStore, AIElement type in Excalidraw, store stubs, tests
+- [x] 01-03-PLAN.md — Canvas bridge: CanvasWrapper (Excalidraw + Zustand), App integration, keyboard undo/redo
+- [x] 01-04-PLAN.md — Layer panel: CanvasStore layer ordering, LayerPanel component with reorder/lock/hide/group
+- [x] 01-05-PLAN.md — Performance: chunk rendering (2000x2000px), resolution-tiered AIElement, LRU image cache (200MB)
+- [x] 01-06-PLAN.md — Persistence: Dexie.js IndexedDB, project save/load, auto-save (180ms), Save/Save As UI
 
 ### Phase 2: Node Editor Interface
 **Goal**: Users can visually create and connect a node-based editing workflow on the canvas
@@ -116,7 +123,7 @@ From foundation to full creative tool: we start by establishing the infinite can
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Core Canvas | 0/0 | Not started | - |
+| 1. Core Canvas | 6/6 | Complete    | 2026-06-29 |
 | 2. Node Editor Interface | 0/0 | Not started | - |
 | 3. Node Engine | 0/0 | Not started | - |
 | 4. AI Adapters | 0/0 | Not started | - |
