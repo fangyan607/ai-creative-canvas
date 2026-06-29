@@ -535,6 +535,31 @@ export const newImageElement = (
   };
 };
 
+// MODIFIED (Phase 1, Plan 02): AIElement creation factory
+export const newAIElement = (
+  opts: {
+    type: "ai-image";
+    prompt?: string;
+    aiProvider?: string;
+    generationParams?: Record<string, unknown>;
+    generationStatus?: "idle" | "queued" | "generating" | "done" | "error";
+    imageBlobId?: string | null;
+  } & ElementConstructorOpts,
+): any => {
+  return {
+    ..._newElementBase<{ type: "ai-image" } & ExcalidrawGenericElement>(
+      "ai-image" as any,
+      opts,
+    ),
+    type: "ai-image",
+    prompt: opts.prompt ?? "",
+    aiProvider: opts.aiProvider ?? "",
+    generationParams: opts.generationParams ?? {},
+    generationStatus: opts.generationStatus ?? "idle",
+    imageBlobId: opts.imageBlobId ?? null,
+  };
+};
+
 // Simplified deep clone for the purpose of cloning ExcalidrawElement.
 //
 // Only clones plain objects and arrays. Doesn't clone Date, RegExp, Map, Set,

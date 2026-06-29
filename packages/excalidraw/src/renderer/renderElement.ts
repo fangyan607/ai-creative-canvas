@@ -993,6 +993,18 @@ export const renderElement = (
       }
       break;
     }
+    case "ai-image": {
+      // MODIFIED (Phase 1, Plan 02): Placeholder rendering for AIElement
+      // Full image rendering comes in Phases 4-5 when AI integration lands
+      context.save();
+      context.translate(
+        element.x + appState.scrollX,
+        element.y + appState.scrollY,
+      );
+      renderAIPlaceholder(context, element as unknown as any);
+      context.restore();
+      break;
+    }
     default: {
       // @ts-ignore
       throw new Error(`Unimplemented type ${element.type}`);
@@ -1001,6 +1013,34 @@ export const renderElement = (
 
   context.globalAlpha = 1;
 };
+
+// MODIFIED (Phase 1, Plan 02): Placeholder rendering for AIElement custom type
+function renderAIPlaceholder(
+  context: CanvasRenderingContext2D,
+  element: { x: number; y: number; width: number; height: number; generationStatus?: string; prompt?: string },
+) {
+  const { x, y, width, height, generationStatus, prompt } = element;
+
+  // Dashed border (indigo)
+  context.strokeStyle = "#6366f1";
+  context.lineWidth = 2;
+  context.setLineDash([6, 3]);
+  context.strokeRect(0, 0, width, height);
+  context.setLineDash([]);
+
+  // Semi-transparent background
+  context.fillStyle = "rgba(99, 102, 241, 0.1)";
+  context.fillRect(0, 0, width, height);
+
+  // Status label
+  context.fillStyle = "#6366f1";
+  context.font = "14px sans-serif";
+  const label =
+    generationStatus === "done"
+      ? "[AI Image]"
+      : `[${generationStatus ?? "idle"}] ${(prompt || "").slice(0, 30)}`;
+  context.fillText(label, 8, 20);
+}
 
 export const pathsCache = new WeakMap<ExcalidrawFreeDrawElement, Path2D>([]);
 

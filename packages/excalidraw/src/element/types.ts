@@ -100,6 +100,13 @@ export type ExcalidrawEmbeddableElement = _ExcalidrawElementBase &
     type: "embeddable";
   }>;
 
+// MODIFIED (Phase 1, Plan 02): Added AIElement custom element type
+// See packages/shared/src/types/canvas.ts for the full AIElement interface
+export type ExcalidrawAIImageElement = _ExcalidrawElementBase &
+  Readonly<{
+    type: "ai-image";
+  }>;
+
 export type MagicGenerationData =
   | {
       status: "pending";
@@ -210,7 +217,8 @@ export type ExcalidrawElement =
   | ExcalidrawFrameElement
   | ExcalidrawMagicFrameElement
   | ExcalidrawIframeElement
-  | ExcalidrawEmbeddableElement;
+  | ExcalidrawEmbeddableElement
+  | ExcalidrawAIImageElement; // MODIFIED: Added ai-image element type (Phase 1, Plan 02)
 
 export type ExcalidrawNonSelectionElement = Exclude<
   ExcalidrawElement,
