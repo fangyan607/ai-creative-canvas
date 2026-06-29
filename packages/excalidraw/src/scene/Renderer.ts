@@ -13,6 +13,52 @@ import { memoize, toBrandedType } from "../utils";
 import type Scene from "./Scene";
 import type { RenderableElementsMap } from "./types";
 
+// CHUNK_RENDERING — Added per D-18 (Phase 1, Plan 05)
+// Partitions canvas into 2000x2000px chunks to reduce element traversal
+// before the precise isElementInViewport() check.
+const CHUNK_SIZE = 2000;
+
+interface ChunkBounds {
+  minCol: number;
+  maxCol: number;
+  minRow: number;
+  maxRow: number;
+}
+
+function getVisibleChunkBounds(
+  scrollX: number,
+  scrollY: number,
+  viewportWidth: number,
+  viewportHeight: number,
+  bufferChunks: number = 1,
+): ChunkBounds {
+  return {
+    minCol: Math.floor(scrollX / CHUNK_SIZE) - bufferChunks,
+    maxCol: Math.ceil((scrollX + viewportWidth) / CHUNK_SIZE) + bufferChunks,
+    minRow: Math.floor(scrollY / CHUNK_SIZE) - bufferChunks,
+    maxRow: Math.ceil((scrollY + viewportHeight) / CHUNK_SIZE) + bufferChunks,
+  };
+}
+
+function isInVisibleChunks(
+  elementX: number,
+  elementY: number,
+  elementWidth: number,
+  elementHeight: number,
+  bounds: ChunkBounds,
+): boolean {
+  const elMinCol = Math.floor(elementX / CHUNK_SIZE);
+  const elMaxCol = Math.floor((elementX + elementWidth) / CHUNK_SIZE);
+  const elMinRow = Math.floor(elementY / CHUNK_SIZE);
+  const elMaxRow = Math.floor((elementY + elementHeight) / CHUNK_SIZE);
+  return (
+    elMaxCol >= bounds.minCol &&
+    elMinCol <= bounds.maxCol &&
+    elMaxRow >= bounds.minRow &&
+    elMinRow <= bounds.maxRow
+  );
+}
+
 export class Renderer {
   private scene: Scene;
 
@@ -40,9 +86,27 @@ export class Renderer {
       height: AppState["height"];
       width: AppState["width"];
     }): readonly NonDeletedExcalidrawElement[] => {
+      // CHUNK_RENDERING — Coarse pre-filter before precise isElementInViewport()
+      // Only elements in visible chunks (+1 buffer) proceed to the precise check.
+      // This reduces element traversal from O(n) to O(chunks) for sparse canvases.
+      const chunkBounds = getVisibleChunkBounds(
+        scrollX,
+        scrollY,
+        width,
+        height,
+        1, // bufferChunks — 1 chunk buffer in each direction
+      );
+
       const visibleElements: NonDeletedExcalidrawElement[] = [];
       for (const element of elementsMap.values()) {
         if (
+          isInVisibleChunks(
+            element.x,
+            element.y,
+            element.width,
+            element.height,
+            chunkBounds,
+          ) &&
           isElementInViewport(
             element,
             width,

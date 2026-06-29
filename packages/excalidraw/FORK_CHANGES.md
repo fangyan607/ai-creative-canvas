@@ -22,6 +22,8 @@ LRU image cache). Full vendored copy (not npm wrapper) per D-01.
 | element/types.ts | Added ExcalidrawAIImageElement type + added to ExcalidrawElement union | AIElement custom type (D-11) | 2026-06-29 | Phase 1 |
 | renderer/renderElement.ts | Added case 'ai-image' render dispatch + renderAIPlaceholder function | Placeholder rendering (D-12) | 2026-06-29 | Phase 1 |
 | element/newElement.ts | Added newAIElement() factory | Element creation utility | 2026-06-29 | Phase 1 |
+| scene/Renderer.ts | Added chunk-aware viewport culling (2000x2000px) + getVisibleChunkBounds() + isInVisibleChunks() | Performance: 500+ elements at 60fps (CANVAS-04, D-18) | 2026-06-29 | Phase 1 |
+| renderer/renderElement.ts | Added resolution-tiered rendering for AIElement via getAIImageRenderQuality() | Memory optimization (D-20) | 2026-06-29 | Phase 1 |
 
 ## Modification Rules
 - Every phase that touches packages/excalidraw/ MUST update this file

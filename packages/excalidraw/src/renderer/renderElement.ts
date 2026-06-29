@@ -74,6 +74,20 @@ export const IMAGE_INVERT_FILTER =
 
 const defaultAppState = getDefaultAppState();
 
+// RESOLUTION_TIERED — Added per D-20 (Phase 1, Plan 05)
+// AIElement types render at reduced quality when zoomed out
+// to avoid decoding full-resolution images at small scales.
+const ZOOM_THRESHOLD_LOW = 0.5; // Below this: colored rect + label only
+const ZOOM_THRESHOLD_MED = 1.0; // Below this (but above LOW): half resolution
+
+function getAIImageRenderQuality(
+  zoom: number,
+): "placeholder" | "half" | "full" {
+  if (zoom < ZOOM_THRESHOLD_LOW) return "placeholder";
+  if (zoom < ZOOM_THRESHOLD_MED) return "half";
+  return "full";
+}
+
 const isPendingImageElement = (
   element: ExcalidrawElement,
   renderConfig: StaticCanvasRenderConfig,
@@ -994,14 +1008,27 @@ export const renderElement = (
       break;
     }
     case "ai-image": {
-      // MODIFIED (Phase 1, Plan 02): Placeholder rendering for AIElement
-      // Full image rendering comes in Phases 4-5 when AI integration lands
+      // MODIFIED (Phase 1, Plan 02, Plan 05): Placeholder rendering for AIElement
+      // RESOLUTION_TIERED (D-20): Check zoom level before rendering
+      const zoomQuality = getAIImageRenderQuality(appState.zoom.value);
+
       context.save();
       context.translate(
         element.x + appState.scrollX,
         element.y + appState.scrollY,
       );
-      renderAIPlaceholder(context, element as unknown as any);
+
+      if (zoomQuality === "placeholder") {
+        // Zoom < 50%: colored rect + label only (no image decode)
+        renderAIPlaceholder(context, element as unknown as any);
+      } else {
+        // Zoom >= 50%: render placeholder for now (Phase 1)
+        // In Phases 4-5 when AI integration lands:
+        // - zoomQuality === "half": render at half resolution via OffscreenCanvas
+        // - zoomQuality === "full": render at full resolution
+        renderAIPlaceholder(context, element as unknown as any);
+      }
+
       context.restore();
       break;
     }
