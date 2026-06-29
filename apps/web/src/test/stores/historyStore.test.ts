@@ -28,11 +28,13 @@ describe('HistoryStore', () => {
   })
 
   it('Test 11: undo restores previous state via CanvasStore.loadSerialized', () => {
+    vi.useFakeTimers()
     const store = useHistoryStore.getState()
     const spy = vi.spyOn(useCanvasStore.getState(), 'loadSerialized')
 
     // Capture first snapshot
     store.captureSnapshot()
+    vi.advanceTimersByTime(200) // exceed merge window
 
     // Make a change and capture second snapshot
     useCanvasStore.getState().setViewport({ x: 100, y: 100, zoom: 2 })
@@ -46,14 +48,17 @@ describe('HistoryStore', () => {
     useHistoryStore.getState().undo()
 
     expect(spy).toHaveBeenCalledTimes(1)
+    vi.useRealTimers()
   })
 
   it('Test 12: redo restores forward state', () => {
+    vi.useFakeTimers()
     const store = useHistoryStore.getState()
     const spy = vi.spyOn(useCanvasStore.getState(), 'loadSerialized')
 
     // First snapshot
     store.captureSnapshot()
+    vi.advanceTimersByTime(200) // exceed merge window
     // Second snapshot
     store.captureSnapshot()
 
@@ -67,6 +72,7 @@ describe('HistoryStore', () => {
 
     expect(spy).toHaveBeenCalledTimes(1)
     expect(useHistoryStore.getState().currentIndex).toBe(1)
+    vi.useRealTimers()
   })
 
   it('Test 13: rapid changes within 180ms merge window collapse into one snapshot', () => {
