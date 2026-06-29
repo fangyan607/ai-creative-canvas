@@ -25,6 +25,16 @@ export interface CanvasStoreState {
   setExcalidrawAPI: (api: any) => void
   serialize: () => { elements: any[]; viewport: Viewport }
   loadSerialized: (state: { elements: any[]; viewport: Viewport }) => void
+
+  // Layer management actions (added in Plan 04)
+  moveElementUp: (id: string) => void
+  moveElementDown: (id: string) => void
+  moveElementToTop: (id: string) => void
+  moveElementToBottom: (id: string) => void
+  toggleElementLock: (id: string) => void
+  toggleElementHide: (id: string) => void
+  groupElements: (ids: string[]) => void
+  ungroupElement: (id: string) => void
 }
 
 export const useCanvasStore = create<CanvasStoreState>()(
@@ -115,5 +125,110 @@ export const useCanvasStore = create<CanvasStoreState>()(
         }
         state.viewport = { ...serialized.viewport }
       }),
+
+    // Layer management actions (Plan 04)
+    moveElementUp: (id) =>
+      set((state) => {
+        const idx = state.elementOrder.indexOf(id)
+        if (idx < state.elementOrder.length - 1) {
+          const next = state.elementOrder[idx + 1]
+          state.elementOrder[idx + 1] = id
+          state.elementOrder[idx] = next
+          _updateExcalidrawScene(state)
+        }
+      }),
+
+    moveElementDown: (id) =>
+      set((state) => {
+        const idx = state.elementOrder.indexOf(id)
+        if (idx > 0) {
+          const prev = state.elementOrder[idx - 1]
+          state.elementOrder[idx - 1] = id
+          state.elementOrder[idx] = prev
+          _updateExcalidrawScene(state)
+        }
+      }),
+
+    moveElementToTop: (id) =>
+      set((state) => {
+        const idx = state.elementOrder.indexOf(id)
+        if (idx >= 0) {
+          state.elementOrder.splice(idx, 1)
+          state.elementOrder.push(id)
+          _updateExcalidrawScene(state)
+        }
+      }),
+
+    moveElementToBottom: (id) =>
+      set((state) => {
+        const idx = state.elementOrder.indexOf(id)
+        if (idx >= 0) {
+          state.elementOrder.splice(idx, 1)
+          state.elementOrder.unshift(id)
+          _updateExcalidrawScene(state)
+        }
+      }),
+
+    toggleElementLock: (id) =>
+      set((state) => {
+        if (state.elements[id]) {
+          state.elements[id].locked = !state.elements[id].locked
+          _updateExcalidrawScene(state)
+        }
+      }),
+
+    toggleElementHide: (id) =>
+      set((state) => {
+        if (state.elements[id]) {
+          const el = state.elements[id]
+          const currentlyHidden = el.customData?.hidden === true
+          if (currentlyHidden) {
+            // Show: restore opacity and remove hidden flag
+            el.opacity = 100
+            el.customData = { ...el.customData, hidden: false }
+          } else {
+            // Hide: set opacity to near-invisible and set hidden flag
+            el.opacity = 5
+            el.customData = { ...el.customData, hidden: true }
+          }
+          _updateExcalidrawScene(state)
+        }
+      }),
+
+    groupElements: (ids) =>
+      set((state) => {
+        const groupId = crypto.randomUUID()
+        for (const id of ids) {
+          if (state.elements[id]) {
+            state.elements[id].groupIds = [
+              ...(state.elements[id].groupIds || []),
+              groupId,
+            ]
+          }
+        }
+        _updateExcalidrawScene(state)
+      }),
+
+    ungroupElement: (id) =>
+      set((state) => {
+        if (state.elements[id]) {
+          state.elements[id].groupIds = []
+        }
+        _updateExcalidrawScene(state)
+      }),
   })),
 )
+
+// Helper: propagate CanvasStore element order/locks/groups/visibility to Excalidraw's internal scene
+// Uses the excalidrawAPI ref stored via setExcalidrawAPI (Plan 03 cross-plan contract)
+function _updateExcalidrawScene(state: CanvasStoreState) {
+  const api = state.excalidrawAPI
+  if (!api) return
+  const reorderedElements = state.elementOrder
+    .map((id) => state.elements[id])
+    .filter(Boolean)
+  api.updateScene({
+    elements: reorderedElements,
+    captureUpdate: 'never', // Don't add programmatic reorders to undo stack
+  })
+}
