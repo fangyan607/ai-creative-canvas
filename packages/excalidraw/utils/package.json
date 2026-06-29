@@ -1,0 +1,15 @@
+{
+  "name": "@excalidraw/utils",
+  "version": "0.1.0-local",
+  "private": true,
+  "type": "module",
+  "main": "./index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./export": "./export.ts",
+    "./collision": "./collision.ts",
+    "./withinBounds": "./withinBounds.ts",
+    "./bbox": "./bbox.ts",
+    "./geometry/shape": "./geometry/shape.ts"
+  }
+}
