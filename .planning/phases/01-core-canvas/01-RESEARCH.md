@@ -965,27 +965,31 @@ export function useAutoSave(projectId: number | null) {
 | A4 | `captureUpdate: 'never'` string works in v0.18 | HistoryStore | MEDIUM — v0.18 introduced `CaptureUpdateAction` enum. The string `'never'` may be the enum value or an alias. Verify exact API from Excalidraw source. |
 | A5 | IndexedDB can handle single-table design with large JSON blobs | Persistence | LOW — Confirmed by Dexie docs. Single table with unindexed blob fields is a recommended pattern. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Exact v0.18.x release tag for forking**
+1. **Exact v0.18.x release tag for forking** — (RESOLVED)
    - What we know: Fork from latest v0.18.x release tag that supports React 19. Excalidraw PR #9182 confirms React 19 support.
    - What's unclear: Which specific v0.18.x tag includes the React 19 fix (v0.18.0 from March 2025, or a later patch).
    - **Recommendation:** Clone upstream, git tag, check release dates. v0.18.0 (March 11, 2025) is likely the right base. If React 19 support landed later, use the first v0.18.x tag after PR #9182 merged.
+   - **RESOLVED:** Plan 01 Task 2 handles this at execution time — clones upstream, checks for v0.18.x tags, verifies React 19 support (PR #9182 in commit log), uses the latest working tag. FORK_CHANGES.md documents the exact tag used.
 
-2. **CaptureUpdateAction API shape in v0.18**
+2. **CaptureUpdateAction API shape in v0.18** — (RESOLVED)
    - What we know: v0.18 deprecated `commitToHistory` in favor of `captureUpdate`. Three modes: IMMEDIATELY, EVENTUALLY, NEVER.
    - What's unclear: Is it a string enum (`'never'`) or a TypeScript enum (`CaptureUpdateAction.NEVER`)? Both patterns appear in Excalidraw's codebase historically.
-   - **Recommendation:** Read the vendored source after forking. The correct API shape will be visible in `updateScene()`'s type signature.
+   - **Recommendation:** Read the vendored source after forking.
+   - **RESOLVED:** Plan 01 Task 2 vendors the source, and Plan 03 Task 1 reads the actual API from the vendored files via `grep`. The plans use `'never'` as a string literal with a comment noting to verify against the actual API signature found. Plan 03's SUMMARY will document the exact API shape.
 
-3. **chunk rendering integration with Excalidraw's existing viewport culling**
+3. **Chunk rendering integration with Excalidraw's existing viewport culling** — (RESOLVED)
    - What we know: Excalidraw already has `isElementInViewport()` in `Renderer.getRenderableElements()`. Phase 1 adds chunk-aware grouping.
-   - What's unclear: How much of the existing culling can be preserved vs. replaced. The chunk approach may conflict with Excalidraw's existing element-by-element culling.
-   - **Recommendation:** Measure first. Excalidraw's viewport culling may already be sufficient for 500+ basic elements. Chunk rendering becomes critical when AI images arrive. Add a feature flag to toggle chunk rendering.
+   - What's unclear: How much of the existing culling can be preserved vs. replaced.
+   - **Recommendation:** Measure first. Excalidraw's viewport culling may already be sufficient for 500+ basic elements. Add feature flag to toggle chunk rendering.
+   - **RESOLVED:** Plan 05 implements chunk rendering as a coarse pre-filter BEFORE Excalidraw's existing `isElementInViewport()` precise check. The existing culling is preserved — chunk filter reduces the element set first, then the precise check runs on the filtered set. No feature flag needed; chunk filtering is always active with 1-chunk buffer.
 
-4. **ref forwarding in React 19 for Excalidraw imperative API**
+4. **Ref forwarding in React 19 for Excalidraw imperative API** — (RESOLVED)
    - What we know: React 19 deprecated `forwardRef` (but kept it for backward compatibility). Excalidraw v0.18 may still use `forwardRef`.
    - What's unclear: Whether the downstream `excalidrawAPI` prop pattern works identically in React 19.
    - **Recommendation:** Test the Excalidraw React component renders in the app shell before doing any deep integration work.
+   - **RESOLVED:** Plan 03 Task 1 discovers the actual export pattern from vendored source via `grep` and uses the `excalidrawAPI` callback prop (which is the canonical Excalidraw pattern independent of `forwardRef`). The import statement is dynamically resolved at execution time based on actual exports found.
 
 ## Environment Availability
 
