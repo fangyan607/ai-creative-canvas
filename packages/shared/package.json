@@ -1,0 +1,20 @@
+{
+  "name": "@ac-canvas/shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./types/canvas": "./src/types/canvas.ts",
+    "./types/project": "./src/types/project.ts",
+    "./utils/coordinate": "./src/utils/coordinate.ts",
+    "./utils/serialization": "./src/utils/serialization.ts"
+  },
+  "dependencies": {
+    "@ac-canvas/excalidraw": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
