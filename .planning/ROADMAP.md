@@ -49,11 +49,11 @@ From foundation to full creative tool: we start by establishing the infinite can
 **Plans**: 5 plans in 4 waves
 **UI hint**: yes
 **Plan list:**
-- [ ] 02-01-PLAN.md — Contracts + branding: shared node graph types, coordinate transforms, Chinese README, Excalidraw sync check (Wave 1)
-- [ ] 02-02-PLAN.md — NodeGraphStore: full Zustand+Immer store with tests, delete stub (Wave 2)
-- [ ] 02-03-PLAN.md — Node editor package: @ac-canvas/node-editor, 5 node components, ConnectionValidator (Wave 2)
-- [ ] 02-04-PLAN.md — Interactive UI: NodeEditorOverlay, PropertyPanel, FocusModeToggle, TemplateDialog (Wave 3)
-- [ ] 02-05-PLAN.md — Integration: persistence, HistoryStore, App.tsx layout wiring, checkpoint verification (Wave 4)
+- [x] 02-01-PLAN.md — Contracts + branding: shared node graph types, coordinate transforms, Chinese README, Excalidraw sync check (Wave 1)
+- [x] 02-02-PLAN.md — NodeGraphStore: full Zustand+Immer store with tests, delete stub (Wave 2)
+- [x] 02-03-PLAN.md — Node editor package: @ac-canvas/node-editor, 5 node components, ConnectionValidator (Wave 2)
+- [x] 02-04-PLAN.md — Interactive UI: NodeEditorOverlay, PropertyPanel, FocusModeToggle, TemplateDialog (Wave 3)
+- [x] 02-05-PLAN.md — Integration: persistence, HistoryStore, App.tsx layout wiring, checkpoint verification (Wave 4)
 
 ### Phase 3: Node Engine
 **Goal**: Node graphs execute in correct topological order with incremental updates and organizational structure
