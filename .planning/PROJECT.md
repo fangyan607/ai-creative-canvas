@@ -12,20 +12,19 @@
 
 ### Validated
 
-(None yet — ship to validate)
+- [x] **CANVAS-01**: 用户可以在无限延展的画布上自由绘制、拖拽、缩放、平移 *— Validated in Phase 1 (Core Canvas)*
+- [x] **CANVAS-04**: 画布状态支持序列化/反序列化（保存/加载） *— Validated in Phase 1 (Core Canvas)*
+- [x] **CANVAS-05**: 画布支持分片渲染性能优化，500+ 元素不卡顿 *— Validated in Phase 1 (Core Canvas)*
+- [x] **NODE-01**: 用户可以拖拽节点到编辑器并连线形成创作流程 *— Validated in Phase 2 (Node Editor Interface)*
+- [x] **NODE-02**: 系统提供 PromptNode、TextToImageNode、StyleNode、MergeNode、PreviewNode 等节点类型 *— Validated in Phase 2 (Node Editor Interface)*
+- [x] **NODE-05**: 用户可以在参数面板调节节点参数 *— Validated in Phase 2 (Node Editor Interface)*
 
 ### Active
 
-- [ ] **CANVAS-01**: 用户可以在无限延展的画布上自由绘制、拖拽、缩放、平移
 - [ ] **CANVAS-02**: 画布支持 AI 生成图片元素的渲染和展示
 - [ ] **CANVAS-03**: 画布支持元素分层/分组/锁定/隐藏
-- [ ] **CANVAS-04**: 画布状态支持序列化/反序列化（保存/加载）
-- [ ] **CANVAS-05**: 画布支持分片渲染性能优化，500+ 元素不卡顿
-- [ ] **NODE-01**: 用户可以拖拽节点到编辑器并连线形成创作流程
-- [ ] **NODE-02**: 系统提供 PromptNode、TextToImageNode、StyleNode、MergeNode、PreviewNode 等节点类型
 - [ ] **NODE-03**: 节点执行引擎支持拓扑排序和并行执行
 - [ ] **NODE-04**: 节点支持增量执行（仅重计算变更路径）
-- [ ] **NODE-05**: 用户可以在参数面板调节节点参数
 - [ ] **AI-01**: 用户通过文生图节点输入 Prompt 生成图片
 - [ ] **AI-02**: 用户通过图生图节点进行风格迁移或重绘
 - [ ] **AI-03**: 系统可接入 OpenAI DALL-E 3 和 Stability.ai 模型
@@ -54,7 +53,7 @@
 
 ## Context
 
-- **项目状态**: 全新启动，已完成整体规划文档（项目计划书、架构文档、技术决策、GSD 开发计划）
+- **项目状态**: Phase 1 (Core Canvas) 完成 ✓ — Excalidraw 无限画布、HistoryStore 撤销/重做、IndexedDB 持久化、LRU 图片缓存已实现。Phase 2 (Node Editor Interface) 完成 ✓ — 5 节点类型、NodeGraphStore 状态管理、PropertyPanel 参数面板、ConnectionValidator 连线验证、2 模板、IndexedDB 集成。
 - **开发模式**: 单人全栈 TypeScript 开发，采用 GSD + CodeGraph + GStack 精确开发工作流
 - **技术选型**: 已通过 ADR 完成全部 10 项关键决策，技术栈已锁定
 - **MVP 定位**: v0.1 聚焦无限画布 + 节点编辑器 + AI 文生图/图生图的核心闭环验证
@@ -102,4 +101,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-29 after project initialization*
+*Last updated: 2026-06-30 — Phase 1 (Core Canvas) and Phase 2 (Node Editor Interface) complete*
