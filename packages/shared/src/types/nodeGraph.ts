@@ -4,13 +4,14 @@
 // (Plan 02-04).
 // ---------------------------------------------------------------------------
 
-/** The 5 core node types in Phase 2. */
+/** The 5 core workflow node types plus 'group' for visual grouping (Phase 3). */
 export type NodeType =
   | 'prompt'
   | 'text-to-image'
   | 'style'
   | 'merge'
   | 'preview'
+  | 'group'
 
 /** Whether a socket is an input (left side) or output (right side). */
 export type SocketSide = 'input' | 'output'
@@ -76,13 +77,21 @@ export interface PreviewNodeData {
   params: NodeParamDefinition[]
 }
 
-/** Union of all 5 node data types for discriminated type narrowing. */
+export interface GroupNodeData {
+  nodeType: 'group'
+  name: string
+  collapsed: boolean
+  params: []
+}
+
+/** Union of all 5 workflow node data types plus GroupNodeData for discriminated type narrowing. */
 export type NodeDataUnion =
   | PromptNodeData
   | TextToImageNodeData
   | StyleNodeData
   | MergeNodeData
   | PreviewNodeData
+  | GroupNodeData
 
 // ---------------------------------------------------------------------------
 // Graph Structure Types
@@ -93,6 +102,8 @@ export interface NodeGraphNode {
   type: NodeType
   position: { x: number; y: number }
   data: NodeDataUnion
+  /** Optional parent group node ID for visual grouping (Phase 3). */
+  parentId?: string | null
 }
 
 export interface NodeGraphEdge {
@@ -107,6 +118,19 @@ export interface NodeGraphSerialized {
   nodes: NodeGraphNode[]
   edges: NodeGraphEdge[]
 }
+
+// ---------------------------------------------------------------------------
+// Execution Status (Phase 3: Node Engine)
+// ---------------------------------------------------------------------------
+
+/** Execution state of a node during DAG execution. Per D-03. */
+export type ExecutionStatus =
+  | 'idle'      // default — not executed or stale after graph change
+  | 'queued'    // in the topological execution queue
+  | 'executing' // currently running its executor
+  | 'done'      // completed successfully
+  | 'error'     // execution failed
+  | 'skipped'   // skipped due to upstream error (D-04 fail-stop)
 
 // ---------------------------------------------------------------------------
 // Node Type Metadata (consumed by Plan 03 node components and Plan 04
