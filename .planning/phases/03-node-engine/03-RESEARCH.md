@@ -604,22 +604,13 @@ export type NodeDataUnion =
 | A4 | No new npm packages are needed for Phase 3. | Standard Stack | The DAG engine is ~200 lines of well-understood algorithm. If cycle detection needs edge cases (multi-edge, self-loop variants), the existing ConnectionValidator covers them. |
 | A5 | The 180ms debounce for auto-execution matches HistoryStore's merge window. | Don't Hand-Roll | If rapid parameter changes produce visual lag (every debounce triggers a re-render), the debounce could be increased to 300ms or switched to a requestAnimationFrame pattern. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **How to handle initial execution on project load?**
-   - What we know: D-05 says "After loading a saved graph, all nodes start as dirty." The first auto-execution after load should process every node.
-   - What's unclear: Should the engine auto-execute on load, or should the user trigger first execution? Auto-execute is consistent with D-02 (auto-execution on graph changes).
-   - Recommendation: Auto-execute after load with a brief delay (100ms) to allow the UI to settle. Mark all nodes as dirty via `engineStore.markAllDirty()`, then trigger the 180ms debounced execution cycle.
+1. **How to handle initial execution on project load?** — RESOLVED: Auto-execute after load. EngineStore.markAllDirty() sets all nodes to idle, then the 180ms debounced auto-execution (useAutoExecute hook) processes the entire graph on the next store change trigger.
 
-2. **Should engine be a class-based API or a functional API?**
-   - What we know: D-01 specifies sync-first with async stubs. Execution must be interruptible and composable.
-   - What's unclear: Claude's discretion area. A class (`NodeEngine`) with methods like `execute(graph)`, `markDirty(nodeId)` is cleaner for stateful operations. A functional API (`runTopologicalSort(nodes, edges)`, `findDirtyPath(...)`) is more testable.
-   - Recommendation: Hybrid - pure functions for deterministic operations (topological sort, dirty-path BFS) wrapped in a lightweight class or facade that manages execution lifecycle.
+2. **Should engine be a class-based API or a functional API?** — RESOLVED: Hybrid approach. Pure functions (toExecutionLayers, findAffectedDownstream) for deterministic, testable operations. NodeEngine class wraps these with lifecycle management (execute, markDirty, setResolvers). Pattern implemented in Plan 02.
 
-3. **Where does group CRUD (create, delete, rename, addToGroup, removeFromGroup) live?**
-   - What we know: Group membership is stored as `parentId` on nodes (D-07). Groups are just nodes with `type: 'group'`.
-   - What's unclear: Should group operations be in NodeGraphStore (alongside addNode/removeNode) or in a new GroupStore slice?
-   - Recommendation: Group operations belong in NodeGraphStore since they modify the same `nodes` and `edges` arrays. Add actions: `createGroup(name, position)`, `addToGroup(nodeId, groupId)`, `removeFromGroup(nodeId)`, `setGroupName(groupId, name)`, `toggleGroupCollapse(groupId)`.
+3. **Where does group CRUD (create, delete, rename, addToGroup, removeFromGroup) live?** — RESOLVED: Group operations live in NodeGraphStore as 5 new actions (createGroup, addToGroup, removeFromGroup, renameGroup, setGroupCollapsed). No separate store needed. Implemented in Plan 04.
 
 ## Validation Architecture
 
