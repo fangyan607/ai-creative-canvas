@@ -20,8 +20,9 @@ LRU image cache). Full vendored copy (not npm wrapper) per D-01.
 |------|-------------|------|---------------|--------|
 | 2026-06-29 | v0.18.0 | Initial fork | — | Base |
 | 2026-06-29 | v0.18.1 | Security patch (XSS CVE-2025-54881) | None (deps-only: @excalidraw/mermaid-to-excalidraw 2.2.2, @types/d3-dispatch locked) | Researched |
+| 2026-06-30 | — | Sync check | None (v0.19.0 not yet released. Sync deferred per D-02) | Pending |
 
-**Latest upstream master commits** (as of 2026-06-29): v0.18.0 之后 master 分支有约 30+ 个未发布提交，包括组选中修复、文本改进、ERD 箭头等功能。下一正式发布（v0.19.0）发布后需同步。
+**Latest upstream master commits** (as of 2026-06-30): v0.18.0 之后 master 分支有约 30+ 个未发布提交，包括组选中修复、文本改进、ERD 箭头等功能。经验证，v0.19.0 标签尚未发布，同步继续推迟。
 
 ## Modified Files
 

@@ -1,3 +1,25 @@
+## 项目简介
+
+**AI无限创意画布** — 基于 Excalidraw 轻量化无限画布、融合 Blender 几何节点程序化编辑逻辑、集成全品类 AI 生成能力的一站式创意设计平台。
+
+用户可以在一个无限自由的画布上，通过拖拽节点的方式，精准可控地完成 AI 图文创作全流程——从创意构思、素材生成、逻辑编辑、效果调试到成品输出。
+
+| 类别 | 技术 |
+|------|------|
+| **前端框架** | React 19 + Vite 8 + TypeScript |
+| **画布引擎** | Excalidraw v0.18 (Fork) |
+| **节点编辑器** | @xyflow/react 12 |
+| **状态管理** | Zustand 5 + Immer |
+| **样式方案** | TailwindCSS 4 + Radix UI |
+| **本地存储** | Dexie.js (IndexedDB) |
+| **验证库** | Zod 4 |
+| **后端** | Hono 4 + Drizzle ORM + SQLite |
+| **测试** | Vitest + Playwright |
+
+> **项目状态:** v0.1-alpha — Phase 2 开发中
+
+---
+
 # 泱泱画布（YangYang Canvas）
 
 > **瞻彼洛矣，维水泱泱** — 《诗经・小雅》
