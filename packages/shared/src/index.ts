@@ -1,4 +1,5 @@
 export * from './types/canvas'
 export * from './types/project'
+export * from './types/nodeGraph'
 export * from './utils/coordinate'
 export * from './utils/serialization'
