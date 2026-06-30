@@ -30,3 +30,7 @@ export { FocusModeToggle } from './FocusModeToggle'
 export type { FocusModeToggleProps, FocusMode } from './FocusModeToggle'
 export { NodeEditorOverlay } from './NodeEditorOverlay'
 export type { NodeEditorOverlayProps } from './NodeEditorOverlay'
+
+// Property Panel
+export { PropertyPanel } from './PropertyPanel'
+export type { PropertyPanelProps } from './PropertyPanel'
