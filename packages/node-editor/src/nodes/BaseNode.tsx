@@ -45,6 +45,7 @@ export interface BaseNodeProps {
   sockets: SocketDef[]
   accentColor?: string
   onDelete?: () => void
+  status?: string  // execution status per D-03
 }
 
 // ---------------------------------------------------------------------------
@@ -59,21 +60,62 @@ function BaseNodeComponent({
   sockets,
   accentColor,
   onDelete,
+  status,
 }: BaseNodeProps) {
+  // Status indicator colors per D-03
+  const STATUS_COLORS: Record<string, string> = {
+    idle: 'var(--color-hairline)',
+    queued: '#3b82f6',      // blue
+    executing: '#f59e0b',   // amber
+    done: '#22c55e',        // green
+    error: '#ef4444',       // red
+    skipped: '#9ca3af',     // muted gray
+  }
+
+  const STATUS_LABELS: Record<string, string> = {
+    idle: '',
+    queued: 'Queued',
+    executing: 'Running',
+    done: 'Done',
+    error: 'Error',
+    skipped: 'Skipped',
+  }
+
   const inputSockets = sockets.filter(s => s.side === 'input')
   const outputSockets = sockets.filter(s => s.side === 'output')
 
   return (
     <div
       className={`group min-w-[200px] max-w-[360px] bg-white rounded-[var(--radius-md)] border border-[var(--color-hairline)] relative ${
+        status === 'executing' ? 'animate-pulse' : ''
+      } ${
         selected ? 'ring-2 ring-[var(--color-ink)] shadow-[0_4px_16px_rgba(0,0,0,0.06)]' : ''
       }`}
+      style={{
+        borderLeftColor: status && STATUS_COLORS[status]
+          ? STATUS_COLORS[status]
+          : undefined,
+        borderLeftWidth: status && status !== 'idle' ? '3px' : undefined,
+      }}
     >
       {/* Accent bar */}
       <div
         className="h-[4px] w-full rounded-t-[var(--radius-md)]"
         style={{ backgroundColor: accentColor || 'var(--color-hairline)' }}
       />
+
+      {/* Status badge — top-right corner (only visible when status is active) */}
+      {status && status !== 'idle' && (
+        <div
+          className="absolute top-2 right-2 text-[10px] font-medium px-1.5 py-0.5 rounded-full z-10"
+          style={{
+            backgroundColor: STATUS_COLORS[status] || 'transparent',
+            color: '#fff',
+          }}
+        >
+          {STATUS_LABELS[status] || status}
+        </div>
+      )}
 
       {/* Header */}
       <div className="px-3 py-1.5 flex items-center gap-2 text-sm font-semibold">
