@@ -1,56 +1,54 @@
 import { useEffect, useRef } from 'react'
 import { useCanvasStore } from '../stores/canvasStore'
+import { useNodeGraphStore } from '../stores/nodeGraphStore'
 import { projectService } from '../indexedb/projectService'
 
 /**
- * Auto-saves canvas state to IndexedDB when elements change.
+ * Auto-saves canvas and node graph state to IndexedDB when either changes.
  * D-15: 180ms debounce matches history merge window.
  * Triggered only when projectId is set (an existing project is active).
  */
-export function useAutoSave({ projectId }: { projectId: number | null }) {
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>()
-  const lastSavedRef = useRef<string>('')
+export function useAutoSave(projectId: number | null) {
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const lastSavedCanvasRef = useRef('')
+  const lastSavedGraphRef = useRef('')
+  const projectIdRef = useRef(projectId)
+  projectIdRef.current = projectId
+
+  const save = async () => {
+    const pid = projectIdRef.current
+    if (pid === null) return
+
+    const canvasStr = JSON.stringify(useCanvasStore.getState().serialize())
+    const graphStr = JSON.stringify(useNodeGraphStore.getState().serialize())
+
+    if (canvasStr === lastSavedCanvasRef.current && graphStr === lastSavedGraphRef.current) return
+
+    lastSavedCanvasRef.current = canvasStr
+    lastSavedGraphRef.current = graphStr
+
+    const canvasParsed = JSON.parse(canvasStr)
+    await projectService.update(pid, {
+      canvasState: canvasStr,
+      viewport: JSON.stringify(canvasParsed.viewport),
+      nodeGraph: graphStr,
+    })
+  }
 
   useEffect(() => {
-    if (!projectId) return
+    if (projectId === null) return
 
-    // Subscribe to CanvasStore element changes
-    const unsubscribe = useCanvasStore.subscribe(
-      (state) => state.elementOrder,
-      () => {
-        // D-15: 180ms debounce
-        clearTimeout(debounceRef.current)
-        debounceRef.current = setTimeout(async () => {
-          const serialized = useCanvasStore.getState().serialize()
-          const serializedStr = JSON.stringify(serialized)
+    const debounced = () => {
+      clearTimeout(debounceRef.current)
+      debounceRef.current = setTimeout(save, 180)
+    }
 
-          // Skip save if state hasn't changed since last save
-          if (serializedStr === lastSavedRef.current) return
-          lastSavedRef.current = serializedStr
-
-          // D-17: Check storage before saving
-          const storage = await projectService.checkStorage()
-          if (storage.percentUsed > 80) {
-            console.warn(
-              `Storage at ${storage.percentUsed.toFixed(1)}% — consider clearing old projects`,
-            )
-            // Request persistent storage if not already
-            if (!storage.isPersistent) {
-              await projectService.requestPersistentStorage()
-            }
-          }
-
-          await projectService.update(projectId, {
-            canvasState: serializedStr,
-            viewport: JSON.stringify(serialized.viewport),
-          })
-        }, 180)
-      },
-      { equalityFunction: Object.is },
-    )
+    const u1 = useCanvasStore.subscribe(() => debounced())
+    const u2 = useNodeGraphStore.subscribe(() => debounced())
 
     return () => {
-      unsubscribe()
+      u1()
+      u2()
       clearTimeout(debounceRef.current)
     }
   }, [projectId])

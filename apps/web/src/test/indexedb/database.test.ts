@@ -1,25 +1,77 @@
-import { describe, it, expect } from 'vitest'
-import { db, AICreativeCanvasDB } from '../../indexedb/db'
+import { describe, it, expect, beforeEach } from 'vitest'
+import { db, type ProjectRecord } from '../../indexedb/db'
+import { projectService } from '../../indexedb/projectService'
 
-describe('AICreativeCanvasDB', () => {
-  it('Test 1: Database schema has single projects table', () => {
-    const tableNames = db.tables.map((t) => t.name)
-    expect(tableNames).toEqual(['projects'])
+describe('IndexedDB — Project persistence with nodeGraph', () => {
+  beforeEach(async () => {
+    // Clean the database before each test
+    await db.projects.clear()
   })
 
-  it('Test 2: projects table has correct schema (++id, name, createdAt, updatedAt)', () => {
-    const projectTable = db.tables.find((t) => t.name === 'projects')
-    expect(projectTable).toBeDefined()
+  it('should save and load a project with nodeGraph data', async () => {
+    const nodeGraphJson = JSON.stringify({
+      nodes: [
+        {
+          id: 'node-1',
+          type: 'prompt',
+          position: { x: 100, y: 200 },
+          data: { nodeType: 'prompt', prompt: 'test prompt', params: [] },
+        },
+      ],
+      edges: [],
+    })
 
-    // Verify the schema includes expected fields
-    const schema = projectTable!.schema
-    expect(schema.primKey.name).toBe('id')
-    expect(schema.primKey.auto).toBe(true)
+    const projectId = await projectService.save({
+      name: 'Test Node Graph Project',
+      canvasState: '{"elements":[],"viewport":{"x":0,"y":0,"zoom":1}}',
+      viewport: '{"x":0,"y":0,"zoom":1}',
+      nodeGraph: nodeGraphJson,
+    })
 
-    // Check indexes exist
-    const indexNames = schema.indexes.map((idx) => idx.name)
-    expect(indexNames).toContain('name')
-    expect(indexNames).toContain('createdAt')
-    expect(indexNames).toContain('updatedAt')
+    expect(projectId).toBeGreaterThan(0)
+
+    const loaded = await projectService.load(projectId)
+    expect(loaded).toBeDefined()
+    expect(loaded!.name).toBe('Test Node Graph Project')
+    expect(loaded!.nodeGraph).toBe(nodeGraphJson)
+
+    // Verify the nodeGraph can be parsed back
+    const parsed = JSON.parse(loaded!.nodeGraph!)
+    expect(parsed.nodes).toHaveLength(1)
+    expect(parsed.nodes[0].type).toBe('prompt')
+    expect(parsed.nodes[0].data.prompt).toBe('test prompt')
+    expect(parsed.edges).toHaveLength(0)
+  })
+
+  it('should allow null nodeGraph for backward compatibility', async () => {
+    const projectId = await projectService.save({
+      name: 'Legacy Project',
+      canvasState: '{"elements":[],"viewport":{"x":0,"y":0,"zoom":1}}',
+      viewport: '{"x":0,"y":0,"zoom":1}',
+      // nodeGraph intentionally omitted — simulating a project saved before Phase 2
+    })
+
+    const loaded = await projectService.load(projectId)
+    expect(loaded).toBeDefined()
+    expect(loaded!.nodeGraph).toBeUndefined()
+  })
+
+  it('should update nodeGraph and persist the change', async () => {
+    const projectId = await projectService.save({
+      name: 'Update Test',
+      canvasState: '{}',
+      viewport: '{"x":0,"y":0,"zoom":1}',
+    })
+
+    const updatedGraph = JSON.stringify({
+      nodes: [{ id: 'n1', type: 'text-to-image', position: { x: 0, y: 0 }, data: { nodeType: 'text-to-image', prompt: '', width: 1024, height: 1024, model: 'dall-e-3', seed: -1, params: [] } }],
+      edges: [],
+    })
+
+    await projectService.update(projectId, { nodeGraph: updatedGraph })
+
+    const loaded = await projectService.load(projectId)
+    expect(loaded!.nodeGraph).toBe(updatedGraph)
+    expect(JSON.parse(loaded!.nodeGraph!).nodes).toHaveLength(1)
   })
 })

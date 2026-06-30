@@ -5,6 +5,7 @@ export interface ProjectRecord {
   name: string
   canvasState: string  // JSON string of CanvasSerializedState
   viewport: string     // JSON string of viewport
+  nodeGraph?: string   // JSON string of NodeGraphSerialized; optional for backward compatibility
   createdAt: Date
   updatedAt: Date
 }
