@@ -4,7 +4,11 @@ import { useShallow } from 'zustand/react/shallow'
 import { useCanvasStore } from '../stores/canvasStore'
 import { useHistoryStore } from '../stores/historyStore'
 
-export function CanvasWrapper() {
+interface CanvasWrapperProps {
+  disabled?: boolean
+}
+
+export function CanvasWrapper({ disabled = false }: CanvasWrapperProps) {
   const excalidrawRef = useRef<any>(null)
   const isPointerDownRef = useRef(false)
   const [isReady, setIsReady] = useState(false)
@@ -92,10 +96,10 @@ export function CanvasWrapper() {
 
   return (
     <div
-      className="w-full h-full relative"
-      onPointerDown={handlePointerDown}
-      onPointerUp={handlePointerUp}
+      className={`w-full h-full relative ${disabled ? 'pointer-events-none' : ''}`}
       style={{ touchAction: 'none' }}
+      onPointerDown={disabled ? undefined : handlePointerDown}
+      onPointerUp={disabled ? undefined : handlePointerUp}
     >
       {!isReady && (
         <div className="absolute inset-0 flex items-center justify-center text-gray-400 z-50 bg-white">
