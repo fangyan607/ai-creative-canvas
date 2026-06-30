@@ -1,11 +1,14 @@
 import { create } from 'zustand'
 import { useCanvasStore } from './canvasStore'
 import { useNodeGraphStore } from './nodeGraphStore'
+import { useEngineStore } from './engineStore'
+import type { EngineSerializedState } from './engineStore'
 
 interface HistorySnapshot {
   timestamp: number
   canvas: { elements: any[]; viewport: { x: number; y: number; zoom: number } }
   nodeGraph: { nodes: any[]; edges: any[] }
+  engine?: EngineSerializedState  // NEW per D-10
 }
 
 export interface HistoryStoreState {
@@ -40,9 +43,10 @@ export const useHistoryStore = create<HistoryStoreState>()((set, get) => ({
     if (lastSnapshot && now - lastSnapshot.timestamp < state.mergeWindow) {
       const canvas = useCanvasStore.getState().serialize()
       const nodeGraph = useNodeGraphStore.getState().serialize()
+      const engine = useEngineStore.getState().serialize()
       set({
         snapshots: state.snapshots.map((s, i) =>
-          i === state.currentIndex ? { timestamp: now, canvas, nodeGraph } : s,
+          i === state.currentIndex ? { timestamp: now, canvas, nodeGraph, engine } : s,
         ),
       })
       return
@@ -53,6 +57,7 @@ export const useHistoryStore = create<HistoryStoreState>()((set, get) => ({
       timestamp: now,
       canvas: structuredClone(useCanvasStore.getState().serialize()),
       nodeGraph: structuredClone(useNodeGraphStore.getState().serialize()),
+      engine: structuredClone(useEngineStore.getState().serialize()),
     }
 
     const nextSnapshots = [
@@ -77,6 +82,9 @@ export const useHistoryStore = create<HistoryStoreState>()((set, get) => ({
       if (snapshot.nodeGraph) {
         useNodeGraphStore.getState().loadSerialized(snapshot.nodeGraph)
       }
+      if (snapshot.engine) {  // NEW per D-10
+        useEngineStore.getState().loadSerialized(snapshot.engine)
+      }
       set({ currentIndex: newIndex })
     }
   },
@@ -91,6 +99,9 @@ export const useHistoryStore = create<HistoryStoreState>()((set, get) => ({
       useCanvasStore.getState().loadSerialized(snapshot.canvas)
       if (snapshot.nodeGraph) {
         useNodeGraphStore.getState().loadSerialized(snapshot.nodeGraph)
+      }
+      if (snapshot.engine) {  // NEW per D-10
+        useEngineStore.getState().loadSerialized(snapshot.engine)
       }
       set({ currentIndex: newIndex })
     }
