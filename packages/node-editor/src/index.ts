@@ -23,3 +23,10 @@ export type { ConnectionValidationResult } from './ConnectionValidator'
 
 // Icon resolver utility
 export { getNodeIcon } from './nodes/BaseNode'
+
+// UI Components (Plan 02-04)
+export { ConnectionLine } from './ConnectionLine'
+export { FocusModeToggle } from './FocusModeToggle'
+export type { FocusModeToggleProps, FocusMode } from './FocusModeToggle'
+export { NodeEditorOverlay } from './NodeEditorOverlay'
+export type { NodeEditorOverlayProps } from './NodeEditorOverlay'
