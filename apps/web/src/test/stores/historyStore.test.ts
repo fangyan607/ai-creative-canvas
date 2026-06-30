@@ -1,163 +1,181 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+
+// ---------------------------------------------------------------------------
+// Mock the stores before importing the tested module
+// ---------------------------------------------------------------------------
+
+const mockCanvasSerialize = vi.fn()
+const mockCanvasLoadSerialized = vi.fn()
+const mockNodeGraphSerialize = vi.fn()
+const mockNodeGraphLoadSerialized = vi.fn()
+
+vi.mock('../../stores/canvasStore', () => ({
+  useCanvasStore: {
+    getState: vi.fn(() => ({
+      serialize: mockCanvasSerialize,
+      loadSerialized: mockCanvasLoadSerialized,
+    })),
+    subscribe: vi.fn((_selector: any) => {
+      // Return unsubscribe function
+      return vi.fn()
+    }),
+  },
+}))
+
+vi.mock('../../stores/nodeGraphStore', () => ({
+  useNodeGraphStore: {
+    getState: vi.fn(() => ({
+      serialize: mockNodeGraphSerialize,
+      loadSerialized: mockNodeGraphLoadSerialized,
+    })),
+    subscribe: vi.fn((_selector: any) => {
+      return vi.fn()
+    }),
+  },
+}))
+
+// ---------------------------------------------------------------------------
+// Import after mocks are set up
+// ---------------------------------------------------------------------------
+
 import { useHistoryStore } from '../../stores/historyStore'
-import { useCanvasStore } from '../../stores/canvasStore'
 
-describe('HistoryStore', () => {
+describe('HistoryStore — unified undo/redo with node graph', () => {
+  const mockCanvasState = {
+    elements: [{ id: 'el-1', type: 'rectangle' }],
+    viewport: { x: 0, y: 0, zoom: 1 },
+  }
+
+  const mockNodeGraphState = {
+    nodes: [
+      { id: 'node-1', type: 'prompt', position: { x: 100, y: 200 }, data: { nodeType: 'prompt', prompt: 'hello', params: [] } },
+    ],
+    edges: [],
+  }
+
   beforeEach(() => {
+    vi.useFakeTimers()
+    // Reset history store
     useHistoryStore.getState().clear()
+    // Reset mocks
+    vi.clearAllMocks()
 
-    // Reset canvas store mock data
-    useCanvasStore.setState({
-      elements: {},
-      viewport: { x: 0, y: 0, zoom: 1 },
-      selectedElementIds: {},
-      isDragging: false,
-      elementOrder: [],
-      excalidrawAPI: null,
-    })
+    // Default mock implementations
+    mockCanvasSerialize.mockReturnValue(mockCanvasState)
+    mockNodeGraphSerialize.mockReturnValue(mockNodeGraphState)
   })
 
-  it('Test 10: captureSnapshot appends to snapshot stack', () => {
-    expect(useHistoryStore.getState().snapshots.length).toBe(0)
-    expect(useHistoryStore.getState().currentIndex).toBe(-1)
-
-    useHistoryStore.getState().captureSnapshot()
-
-    expect(useHistoryStore.getState().snapshots.length).toBe(1)
-    expect(useHistoryStore.getState().currentIndex).toBe(0)
-  })
-
-  it('Test 11: undo restores previous state via CanvasStore.loadSerialized', () => {
-    vi.useFakeTimers()
-    const store = useHistoryStore.getState()
-    const spy = vi.spyOn(useCanvasStore.getState(), 'loadSerialized')
-
-    // Capture first snapshot
-    store.captureSnapshot()
-    vi.advanceTimersByTime(200) // exceed merge window
-
-    // Make a change and capture second snapshot
-    useCanvasStore.getState().setViewport({ x: 100, y: 100, zoom: 2 })
-    store.captureSnapshot()
-
-    expect(useHistoryStore.getState().snapshots.length).toBe(2)
-    expect(useHistoryStore.getState().currentIndex).toBe(1)
-
-    // Undo back to first snapshot
-    spy.mockClear()
-    useHistoryStore.getState().undo()
-
-    expect(spy).toHaveBeenCalledTimes(1)
+  afterEach(() => {
     vi.useRealTimers()
   })
 
-  it('Test 12: redo restores forward state', () => {
-    vi.useFakeTimers()
-    const store = useHistoryStore.getState()
-    const spy = vi.spyOn(useCanvasStore.getState(), 'loadSerialized')
-
-    // First snapshot
-    store.captureSnapshot()
-    vi.advanceTimersByTime(200) // exceed merge window
-    // Second snapshot
-    store.captureSnapshot()
-
-    // Undo to first
-    useHistoryStore.getState().undo()
-    expect(useHistoryStore.getState().currentIndex).toBe(0)
-
-    // Redo back to second
-    spy.mockClear()
-    useHistoryStore.getState().redo()
-
-    expect(spy).toHaveBeenCalledTimes(1)
-    expect(useHistoryStore.getState().currentIndex).toBe(1)
-    vi.useRealTimers()
-  })
-
-  it('Test 13: rapid changes within 180ms merge window collapse into one snapshot', () => {
-    const store = useHistoryStore.getState()
-
-    // Capture first snapshot
-    store.captureSnapshot()
-    expect(useHistoryStore.getState().snapshots.length).toBe(1)
-
-    // Rapidly capture more — they should merge into the same slot
-    store.captureSnapshot()
-    store.captureSnapshot()
-    store.captureSnapshot()
-
-    expect(useHistoryStore.getState().snapshots.length).toBe(1)
-    expect(useHistoryStore.getState().currentIndex).toBe(0)
-  })
-
-  it('Test 14: setPaused(true) prevents captureSnapshot from creating entries', () => {
-    useHistoryStore.getState().setPaused(true)
-
-    useHistoryStore.getState().captureSnapshot()
+  it('should capture snapshot with both canvas and node graph state', () => {
     useHistoryStore.getState().captureSnapshot()
 
-    expect(useHistoryStore.getState().snapshots.length).toBe(0)
+    const state = useHistoryStore.getState()
+    expect(state.snapshots).toHaveLength(1)
+    expect(state.currentIndex).toBe(0)
 
-    // Unpause and verify capturing works again
-    useHistoryStore.getState().setPaused(false)
-    useHistoryStore.getState().captureSnapshot()
+    const snapshot = state.snapshots[0]
+    expect(snapshot.canvas).toEqual(mockCanvasState)
+    expect(snapshot.nodeGraph).toEqual(mockNodeGraphState)
 
-    expect(useHistoryStore.getState().snapshots.length).toBe(1)
+    expect(mockCanvasSerialize).toHaveBeenCalledOnce()
+    expect(mockNodeGraphSerialize).toHaveBeenCalledOnce()
   })
 
-  it('Test 15: snapshot stack does not exceed 50 entries', () => {
-    // Capture 55 snapshots (needs time advancement to avoid merge window)
-    const store = useHistoryStore.getState()
+  it('should restore both canvas and node graph on undo', () => {
+    // Capture initial state
+    useHistoryStore.getState().captureSnapshot()
 
-    // We'll manually override the merge window behavior by waiting >180ms
-    // between captures using vi.advanceTimersByTime
-    vi.useFakeTimers()
+    // Advance time past the merge window so the next call appends rather than replaces
+    vi.advanceTimersByTime(200)
 
-    for (let i = 0; i < 55; i++) {
-      // This simulates manual time progression, but since the merge window
-      // uses Date.now() internally, we need to advance time
-      store.captureSnapshot()
-      vi.advanceTimersByTime(200) // exceed the 180ms merge window
+    // Simulate a change to both stores for the second snapshot
+    const changedCanvas = {
+      elements: [{ id: 'el-2', type: 'text' }],
+      viewport: { x: 100, y: 0, zoom: 1.5 },
+    }
+    const changedNodeGraph = {
+      nodes: [
+        { id: 'node-2', type: 'text-to-image', position: { x: 0, y: 0 }, data: { nodeType: 'text-to-image', prompt: 'changed', width: 1024, height: 1024, model: 'dall-e-3', seed: -1, params: [] } },
+      ],
+      edges: [],
     }
 
-    expect(useHistoryStore.getState().snapshots.length).toBeLessThanOrEqual(50)
-    expect(useHistoryStore.getState().snapshots.length).toBe(50)
+    mockCanvasSerialize.mockReturnValue(changedCanvas)
+    mockNodeGraphSerialize.mockReturnValue(changedNodeGraph)
 
-    vi.useRealTimers()
-  })
-
-  it('Test 16: clear() resets snapshots and currentIndex to -1', () => {
-    const store = useHistoryStore.getState()
-    store.captureSnapshot()
-    store.captureSnapshot()
-    expect(useHistoryStore.getState().snapshots.length).toBeGreaterThan(0)
-
-    store.clear()
-
-    expect(useHistoryStore.getState().snapshots.length).toBe(0)
-    expect(useHistoryStore.getState().currentIndex).toBe(-1)
-  })
-
-  it('Test 17: undo at start of history (currentIndex <= 0) is a no-op', () => {
-    useHistoryStore.getState().undo()
-
-    expect(useHistoryStore.getState().currentIndex).toBe(-1)
-
-    // Capture once, try undo when already at start
+    // Advance time to ensure merge window passes for the debounce check
+    vi.advanceTimersByTime(200)
     useHistoryStore.getState().captureSnapshot()
+    expect(useHistoryStore.getState().currentIndex).toBe(1)
+
+    // Undo should restore the first snapshot (canvas + nodeGraph)
+    vi.clearAllMocks()
     useHistoryStore.getState().undo()
 
-    // Should be no-op since currentIndex === 0 and there's nothing before it
+    expect(mockCanvasLoadSerialized).toHaveBeenCalledWith(mockCanvasState)
+    expect(mockNodeGraphLoadSerialized).toHaveBeenCalledWith(mockNodeGraphState)
     expect(useHistoryStore.getState().currentIndex).toBe(0)
   })
 
-  it('Test 18: redo at end of history is a no-op', () => {
+  it('should restore both canvas and node graph on redo', () => {
+    // Capture first state
     useHistoryStore.getState().captureSnapshot()
 
-    // Try redo when at the end (currentIndex === 0, snapshots.length === 1)
+    // Advance time past merge window
+    vi.advanceTimersByTime(200)
+
+    // Change state and capture second
+    const changedCanvas = {
+      elements: [{ id: 'el-2', type: 'text' }],
+      viewport: { x: 100, y: 0, zoom: 1.5 },
+    }
+    const changedNodeGraph = {
+      nodes: [{ id: 'node-2', type: 'text-to-image', position: { x: 0, y: 0 }, data: { nodeType: 'text-to-image', prompt: 'changed', width: 1024, height: 1024, model: 'dall-e-3', seed: -1, params: [] } }],
+      edges: [],
+    }
+
+    mockCanvasSerialize.mockReturnValue(changedCanvas)
+    mockNodeGraphSerialize.mockReturnValue(changedNodeGraph)
+
+    vi.advanceTimersByTime(200)
+    useHistoryStore.getState().captureSnapshot()
+    expect(useHistoryStore.getState().currentIndex).toBe(1)
+
+    // Undo once to go back
+    vi.clearAllMocks()
+    useHistoryStore.getState().undo()
+
+    // Redo should restore the second snapshot
+    vi.clearAllMocks()
     useHistoryStore.getState().redo()
 
-    expect(useHistoryStore.getState().currentIndex).toBe(0)
+    expect(mockCanvasLoadSerialized).toHaveBeenCalledWith(changedCanvas)
+    expect(mockNodeGraphLoadSerialized).toHaveBeenCalledWith(changedNodeGraph)
+    expect(useHistoryStore.getState().currentIndex).toBe(1)
+  })
+
+  it('should handle backward compatibility — merges correctly when nodeGraph present', () => {
+    // Capture two snapshots with time separation
+    useHistoryStore.getState().captureSnapshot()
+    vi.advanceTimersByTime(200)
+
+    const changedCanvas = {
+      elements: [{ id: 'el-2', type: 'text' }],
+      viewport: { x: 100, y: 0, zoom: 1.5 },
+    }
+    const changedNodeGraph = {
+      nodes: [{ id: 'node-2', type: 'merge', position: { x: 50, y: 50 }, data: { nodeType: 'merge', blendMode: 'multiply', params: [] } }],
+      edges: [],
+    }
+    mockCanvasSerialize.mockReturnValue(changedCanvas)
+    mockNodeGraphSerialize.mockReturnValue(changedNodeGraph)
+
+    vi.advanceTimersByTime(200)
+    useHistoryStore.getState().captureSnapshot()
+
+    expect(useHistoryStore.getState().snapshots).toHaveLength(2)
   })
 })

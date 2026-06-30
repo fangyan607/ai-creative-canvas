@@ -1,9 +1,11 @@
 import { create } from 'zustand'
 import { useCanvasStore } from './canvasStore'
+import { useNodeGraphStore } from './nodeGraphStore'
 
 interface HistorySnapshot {
   timestamp: number
   canvas: { elements: any[]; viewport: { x: number; y: number; zoom: number } }
+  nodeGraph: { nodes: any[]; edges: any[] }
 }
 
 export interface HistoryStoreState {
@@ -37,9 +39,10 @@ export const useHistoryStore = create<HistoryStoreState>()((set, get) => ({
     // Debounce: within mergeWindow, replace (don't append)
     if (lastSnapshot && now - lastSnapshot.timestamp < state.mergeWindow) {
       const canvas = useCanvasStore.getState().serialize()
+      const nodeGraph = useNodeGraphStore.getState().serialize()
       set({
         snapshots: state.snapshots.map((s, i) =>
-          i === state.currentIndex ? { timestamp: now, canvas } : s,
+          i === state.currentIndex ? { timestamp: now, canvas, nodeGraph } : s,
         ),
       })
       return
@@ -49,6 +52,7 @@ export const useHistoryStore = create<HistoryStoreState>()((set, get) => ({
     const snapshot: HistorySnapshot = {
       timestamp: now,
       canvas: structuredClone(useCanvasStore.getState().serialize()),
+      nodeGraph: structuredClone(useNodeGraphStore.getState().serialize()),
     }
 
     const nextSnapshots = [
@@ -70,6 +74,9 @@ export const useHistoryStore = create<HistoryStoreState>()((set, get) => ({
     const snapshot = state.snapshots[newIndex]
     if (snapshot) {
       useCanvasStore.getState().loadSerialized(snapshot.canvas)
+      if (snapshot.nodeGraph) {
+        useNodeGraphStore.getState().loadSerialized(snapshot.nodeGraph)
+      }
       set({ currentIndex: newIndex })
     }
   },
@@ -82,6 +89,9 @@ export const useHistoryStore = create<HistoryStoreState>()((set, get) => ({
     const snapshot = state.snapshots[newIndex]
     if (snapshot) {
       useCanvasStore.getState().loadSerialized(snapshot.canvas)
+      if (snapshot.nodeGraph) {
+        useNodeGraphStore.getState().loadSerialized(snapshot.nodeGraph)
+      }
       set({ currentIndex: newIndex })
     }
   },
