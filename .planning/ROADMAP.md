@@ -64,8 +64,14 @@ From foundation to full creative tool: we start by establishing the infinite can
   2. Changing one node's parameter re-executes only the affected downstream path (dirty-path marking), not the entire graph
   3. User can group nodes into named sub-groups to organize complex graphs, with collapse/expand
   4. Node graph operations (add, delete, connect, disconnect) support undo/redo alongside canvas undo/redo
-**Plans**: TBD
+**Plans**: 5 plans in 3 waves
 **UI hint**: yes
+**Plan list:**
+- [ ] 03-01-PLAN.md — Types & Contracts: parentId, GroupNodeData, ExecutionStatus, engine type system (Wave 1)
+- [ ] 03-02-PLAN.md — Engine Core: toExecutionLayers, findAffectedDownstream, NodeEngine, EngineStore, stub resolvers, unit tests (Wave 2)
+- [ ] 03-03-PLAN.md — GroupNode + Status UI: GroupNode component with collapse/expand, BaseNode status indicator (Wave 2)
+- [ ] 03-04-PLAN.md — Store Extensions: NodeGraphStore group CRUD, HistoryStore engine state (Wave 2)
+- [ ] 03-05-PLAN.md — Wiring + Verification: useAutoExecute, NodeEditorOverlay integration, App.tsx, checkpoint (Wave 3)
 
 ### Phase 4: AI Adapters
 **Goal**: System generates images through multiple AI providers via a clean adapter pattern with user-owned keys
@@ -130,7 +136,7 @@ From foundation to full creative tool: we start by establishing the infinite can
 |-------|----------------|--------|-----------|
 | 1. Core Canvas | 6/6 | Complete    | 2026-06-29 |
 | 2. Node Editor Interface | 0/5 | Not started | - |
-| 3. Node Engine | 0/0 | Not started | - |
+| 3. Node Engine | 0/5 | Not started | - |
 | 4. AI Adapters | 0/0 | Not started | - |
 | 5. AI Execution Infrastructure | 0/0 | Not started | - |
 | 6. Backend Services | 0/0 | Not started | - |
