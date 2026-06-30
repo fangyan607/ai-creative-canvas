@@ -35,6 +35,7 @@ import {
   Layers,
   Eye,
   Plus,
+  FolderKanban,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -43,6 +44,7 @@ import { TextToImageNode } from './nodes/TextToImageNode'
 import { StyleNode } from './nodes/StyleNode'
 import { MergeNode } from './nodes/MergeNode'
 import { PreviewNode } from './nodes/PreviewNode'
+import { GroupNode } from './nodes/GroupNode'
 import { ConnectionLine } from './ConnectionLine'
 import { FocusModeToggle, type FocusMode } from './FocusModeToggle'
 import { validateConnection } from './ConnectionValidator'
@@ -95,14 +97,22 @@ function getToolbarIcon(iconName: string): LucideIcon {
 // ---------------------------------------------------------------------------
 
 function toRFNode(
-  n: { id: string; type: string; position: { x: number; y: number }; data: unknown },
+  n: { id: string; type: string; position: { x: number; y: number }; data: unknown; parentId?: string | null },
 ): Node {
-  return {
+  const rfNode: Node = {
     id: n.id,
     type: n.type,
     position: n.position,
     data: n.data,
-  } as Node
+  }
+  // Pass through parentId for group node support (D-07)
+  if (n.parentId) {
+    rfNode.parentId = n.parentId
+    // Children of group nodes have extent: 'parent' so they're
+    // visually contained within the group
+    rfNode.extent = 'parent'
+  }
+  return rfNode
 }
 
 function toRFEdge(
@@ -161,6 +171,7 @@ function OverlayInner({ focusMode, onFocusModeChange }: NodeEditorOverlayProps) 
       style: StyleNode,
       merge: MergeNode,
       preview: PreviewNode,
+      group: GroupNode,
     }),
     [],
   )
@@ -170,7 +181,13 @@ function OverlayInner({ focusMode, onFocusModeChange }: NodeEditorOverlayProps) 
   // ---------------------------------------------------------------------------
 
   useEffect(() => {
-    setRfNodes(storeNodes.map(toRFNode))
+    // Sort: group nodes must appear before their children (Researched Pitfall 2)
+    const sorted = [...storeNodes].sort((a, b) => {
+      if (a.id === b.parentId) return -1  // a is b's parent
+      if (b.id === a.parentId) return 1   // b is a's parent
+      return 0
+    })
+    setRfNodes(sorted.map(toRFNode))
   }, [storeNodes])
 
   useEffect(() => {
@@ -207,6 +224,69 @@ function OverlayInner({ focusMode, onFocusModeChange }: NodeEditorOverlayProps) 
       return next
     })
   }, [])
+
+  // ---------------------------------------------------------------------------
+  // Group collapse/expand handler
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Toggle group collapse. When collapsing:
+   * - Hide all child nodes and their connected edges
+   * - Update the store with the new collapsed state
+   *
+   * Reverses on expand. Per D-06/D-08 and RESEARCH.md Pitfall 4.
+   */
+  const toggleGroupCollapse = useCallback(
+    (groupId: string) => {
+      const store = useNodeGraphStore.getState()
+      const groupNode = store.nodes.find((n) => n.id === groupId)
+      if (!groupNode || groupNode.type !== 'group') return
+
+      const groupData = groupNode.data as any
+      const currentlyCollapsed = groupData.collapsed === true
+      const newCollapsed = !currentlyCollapsed
+
+      // Update the store
+      store.setGroupCollapsed(groupId, newCollapsed)
+
+      // Find child node IDs of this group
+      const childIds = new Set(
+        store.nodes
+          .filter((n) => n.parentId === groupId)
+          .map((n) => n.id),
+      )
+
+      // Update local rfNodes: hide/show children, update group node data
+      setRfNodes((prev) =>
+        prev.map((n) => {
+          if (childIds.has(n.id)) {
+            return { ...n, hidden: newCollapsed }
+          }
+          if (n.id === groupId) {
+            return {
+              ...n,
+              data: { ...n.data, collapsed: newCollapsed },
+              style: newCollapsed
+                ? { ...(n.style || {}), width: 200, height: 60 }
+                : n.style,
+            }
+          }
+          return n
+        }),
+      )
+
+      // Update edges: hide/show edges connected to children
+      setRfEdges((prev) =>
+        prev.map((e) => {
+          if (childIds.has(e.source) || childIds.has(e.target)) {
+            return { ...e, hidden: newCollapsed }
+          }
+          return e
+        }),
+      )
+    },
+    [],
+  )
 
   // ---------------------------------------------------------------------------
   // Connection handlers
@@ -458,6 +538,28 @@ function OverlayInner({ focusMode, onFocusModeChange }: NodeEditorOverlayProps) 
               </button>
             )
           })}
+          <div className="w-px h-8 bg-[var(--color-hairline)]" />
+
+          {/* Group create button */}
+          <button
+            onClick={() => {
+              // Create a group at a default position (center-ish of current viewport)
+              useNodeGraphStore.getState().createGroup('New Group', {
+                x: -150,
+                y: -100,
+              })
+              // Capture snapshot for undo (D-10)
+              useHistoryStore.getState().captureSnapshot()
+            }}
+            className="flex flex-col items-center gap-0.5 p-2 bg-white border border-[var(--color-hairline)] rounded-[var(--radius-md)] hover:bg-[var(--color-surface-secondary)] transition-colors cursor-pointer"
+            title="Create Group"
+          >
+            <FolderKanban size={16} />
+            <span className="text-[10px] text-[var(--color-muted-foreground)]">
+              Group
+            </span>
+          </button>
+
           <div className="w-px h-8 bg-[var(--color-hairline)]" />
           <button
             onClick={() => setTemplateDialogOpen(true)}
