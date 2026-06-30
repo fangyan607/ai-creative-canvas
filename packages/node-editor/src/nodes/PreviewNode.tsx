@@ -6,10 +6,12 @@ import { memo } from 'react'
 import { type NodeProps } from '@xyflow/react'
 import { Eye } from 'lucide-react'
 import { nodeTypeDefinitions } from '@ac-canvas/shared'
+import { useEngineStore } from '../../../../apps/web/src/stores/engineStore'
 import { BaseNode } from './BaseNode'
 
-function PreviewNodeComponent({ data, selected }: NodeProps) {
+function PreviewNodeComponent({ id, data, selected }: NodeProps) {
   const def = nodeTypeDefinitions.find(d => d.type === 'preview')!
+  const status = useEngineStore((s) => s.nodeStatus[id])
   const generatedImageId = (data as any).generatedImageId
 
   return (
@@ -18,6 +20,7 @@ function PreviewNodeComponent({ data, selected }: NodeProps) {
       icon={Eye}
       label="Preview"
       selected={selected}
+      status={status}
       sockets={def.sockets}
       accentColor="var(--color-node-preview)"
     >

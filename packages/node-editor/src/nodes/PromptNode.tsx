@@ -6,16 +6,19 @@ import { memo } from 'react'
 import { type NodeProps } from '@xyflow/react'
 import { MessageSquareText } from 'lucide-react'
 import { nodeTypeDefinitions } from '@ac-canvas/shared'
+import { useEngineStore } from '../../../../apps/web/src/stores/engineStore'
 import { BaseNode } from './BaseNode'
 
-function PromptNodeComponent({ data, selected }: NodeProps) {
+function PromptNodeComponent({ id, data, selected }: NodeProps) {
   const def = nodeTypeDefinitions.find(d => d.type === 'prompt')!
+  const status = useEngineStore((s) => s.nodeStatus[id])
   return (
     <BaseNode
       type="prompt"
       icon={MessageSquareText}
       label="Prompt"
       selected={selected}
+      status={status}
       sockets={def.sockets}
       accentColor="var(--color-node-prompt)"
     >

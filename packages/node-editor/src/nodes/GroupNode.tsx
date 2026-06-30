@@ -10,6 +10,7 @@ import { memo, useState, useCallback, useRef, useEffect } from 'react'
 import { type NodeProps } from '@xyflow/react'
 import { ChevronDown, ChevronRight, GripHorizontal } from 'lucide-react'
 import type { GroupNodeData } from '@ac-canvas/shared'
+import { useNodeGraphStore } from '../../../../apps/web/src/stores/nodeGraphStore'
 
 type GroupNodeProps = NodeProps & {
   data: GroupNodeData
@@ -29,12 +30,11 @@ function GroupNodeComponent({ id, data, selected }: GroupNodeProps) {
   }, [isEditing])
 
   const toggleCollapse = useCallback(() => {
-    // The actual child node hide/show is handled by NodeEditorOverlay
-    // via the nodes state. This component only triggers the store action.
-    // The parent overlay will handle toggling the collapsed state.
-    // ⚠️ For now, this component renders the toggle button. The store
-    // action wiring happens in Plan 05.
-    console.log('toggleCollapse', id)
+    const store = useNodeGraphStore.getState()
+    const groupNode = store.nodes.find((n) => n.id === id)
+    if (!groupNode || groupNode.type !== 'group') return
+    const currentlyCollapsed = (groupNode.data as any).collapsed === true
+    store.setGroupCollapsed(id, !currentlyCollapsed)
   }, [id])
 
   const handleDoubleClick = useCallback(() => {
@@ -43,9 +43,10 @@ function GroupNodeComponent({ id, data, selected }: GroupNodeProps) {
 
   const handleBlur = useCallback(() => {
     setIsEditing(false)
-    // The name change is committed via the store. Stored in data.name.
-    // Actual store wiring happens in Plan 05.
-  }, [])
+    if (editName.trim() && editName !== data.name) {
+      useNodeGraphStore.getState().renameGroup(id, editName.trim())
+    }
+  }, [id, editName, data.name])
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {

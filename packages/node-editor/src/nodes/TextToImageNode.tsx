@@ -6,10 +6,12 @@ import { memo } from 'react'
 import { type NodeProps } from '@xyflow/react'
 import { WandSparkles } from 'lucide-react'
 import { nodeTypeDefinitions } from '@ac-canvas/shared'
+import { useEngineStore } from '../../../../apps/web/src/stores/engineStore'
 import { BaseNode } from './BaseNode'
 
-function TextToImageNodeComponent({ data, selected }: NodeProps) {
+function TextToImageNodeComponent({ id, data, selected }: NodeProps) {
   const def = nodeTypeDefinitions.find(d => d.type === 'text-to-image')!
+  const status = useEngineStore((s) => s.nodeStatus[id])
   const model = (data as any).model
   const width = (data as any).width
   const height = (data as any).height
@@ -20,6 +22,7 @@ function TextToImageNodeComponent({ data, selected }: NodeProps) {
       icon={WandSparkles}
       label="Text to Image"
       selected={selected}
+      status={status}
       sockets={def.sockets}
       accentColor="var(--color-node-text-to-image)"
     >
