@@ -7,6 +7,7 @@ import type {
   NodeGraphSerialized,
   NodeDataUnion,
   NodeParamDefinition,
+  GroupNodeData,
 } from '@ac-canvas/shared'
 import { nodeTypeDefinitions } from '@ac-canvas/shared'
 
@@ -64,6 +65,13 @@ export interface NodeGraphStoreState {
   // Focus mode
   setFocusMode: (mode: 'canvas' | 'nodes') => void
 
+  // Group operations (Phase 3, NODE-07)
+  createGroup: (name: string, position: { x: number; y: number }) => string
+  addToGroup: (nodeId: string, groupId: string) => void
+  removeFromGroup: (nodeId: string) => void
+  renameGroup: (groupId: string, name: string) => void
+  setGroupCollapsed: (groupId: string, collapsed: boolean) => void
+
   // Serialization
   serialize: () => NodeGraphSerialized
   loadSerialized: (state: NodeGraphSerialized) => void
@@ -96,9 +104,16 @@ export const useNodeGraphStore = create<NodeGraphStoreState>()(
 
     removeNode: (id) =>
       set((state) => {
-        state.nodes = state.nodes.filter((n) => n.id !== id)
+        // Find children (nodes with this group's id as parentId)
+        const childIds = state.nodes
+          .filter((n) => n.parentId === id)
+          .map((n) => n.id)
+
+        // Remove the node + its children + their edges
+        const toRemove = new Set([id, ...childIds])
+        state.nodes = state.nodes.filter((n) => !toRemove.has(n.id))
         state.edges = state.edges.filter(
-          (e) => e.source !== id && e.target !== id,
+          (e) => !toRemove.has(e.source) && !toRemove.has(e.target),
         )
       }),
 
@@ -152,6 +167,52 @@ export const useNodeGraphStore = create<NodeGraphStoreState>()(
     setFocusMode: (mode) =>
       set((state) => {
         state.focusMode = mode
+      }),
+
+    // -- Group operations (Phase 3, NODE-07) --------------------------------
+
+    createGroup: (name, position) => {
+      const id = crypto.randomUUID()
+      const data: GroupNodeData = { nodeType: 'group', name, collapsed: false, params: [] }
+      // Per D-07: group nodes are stored in the same flat nodes array
+      const node: NodeGraphNode = { id, type: 'group' as NodeType, position, data, parentId: null }
+
+      set((state) => {
+        state.nodes.push(node)
+      })
+
+      return id
+    },
+
+    addToGroup: (nodeId, groupId) =>
+      set((state) => {
+        const node = state.nodes.find((n) => n.id === nodeId)
+        if (!node) return
+        // Set parentId to groupId. React Flow uses this for parent-relative positioning.
+        node.parentId = groupId
+      }),
+
+    removeFromGroup: (nodeId) =>
+      set((state) => {
+        const node = state.nodes.find((n) => n.id === nodeId)
+        if (!node) return
+        node.parentId = null
+      }),
+
+    renameGroup: (groupId, name) =>
+      set((state) => {
+        const node = state.nodes.find((n) => n.id === groupId)
+        if (!node || node.type !== 'group') return
+        const data = node.data as GroupNodeData
+        data.name = name
+      }),
+
+    setGroupCollapsed: (groupId, collapsed) =>
+      set((state) => {
+        const node = state.nodes.find((n) => n.id === groupId)
+        if (!node || node.type !== 'group') return
+        const data = node.data as GroupNodeData
+        data.collapsed = collapsed
       }),
 
     // -- Serialization -----------------------------------------------------
