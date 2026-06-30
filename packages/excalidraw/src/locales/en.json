@@ -320,7 +320,7 @@
   },
   "hints": {
     "dismissSearch": "Escape to dismiss search",
-    "canvasPanning": "To move canvas, hold mouse wheel or spacebar while dragging, or use the hand tool",
+    "canvasPanning": "按住鼠标滚轮或空格键进行拖拽，也可以使用手形工具",
     "linearElement": "Click to start multiple points, drag for single line",
     "arrowTool": "Click to start multiple points, drag for single line. Press {{arrowShortcut}} again to change arrow type.",
     "freeDraw": "Click and drag, release when you're finished",
@@ -340,7 +340,7 @@
     "publishLibrary": "Publish your own library",
     "bindTextToElement": "Press enter to add text",
     "createFlowchart": "Hold CtrlOrCmd and Arrow key to create a flowchart",
-    "deepBoxSelect": "Hold CtrlOrCmd to deep select, and to prevent dragging",
+    "deepBoxSelect": "按住Ctrl键可进行深度选择",
     "eraserRevert": "Hold Alt to revert the elements marked for deletion",
     "firefox_clipboard_write": "This feature can likely be enabled by setting the \"dom.events.asyncClipboard.clipboardItem\" flag to \"true\". To change the browser flags in Firefox, visit the \"about:config\" page.",
     "disableSnapping": "Hold CtrlOrCmd to disable snapping",

@@ -1,6 +1,12 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useCanvasStore } from '../stores/canvasStore'
+import { projectService } from '../indexedb/projectService'
+
+interface LayerPanelProps {
+  projectId: number | null
+  onProjectIdChange: (id: number) => void
+}
 
 // Icon mapping for element types
 const TYPE_LABELS: Record<string, string> = {
@@ -31,7 +37,9 @@ const TYPE_ICONS: Record<string, string> = {
   'ai-image': '✨',
 }
 
-export function LayerPanel() {
+export function LayerPanel({ projectId, onProjectIdChange }: LayerPanelProps) {
+  const [isSaving, setIsSaving] = useState(false)
+  const [showSaveAs, setShowSaveAs] = useState(false)
   // Fine-grained selectors per D-24
   const elements = useCanvasStore(
     useShallow((s) => s.elementOrder.map((id) => s.elements[id]).filter(Boolean)),
@@ -69,6 +77,34 @@ export function LayerPanel() {
     }
   }, [selectedIds, groupElements])
 
+  // Save handlers
+  const handleSave = useCallback(async () => {
+    if (!projectId) { setShowSaveAs(true); return }
+    setIsSaving(true)
+    try {
+      const serialized = useCanvasStore.getState().serialize()
+      await projectService.update(projectId, {
+        canvasState: JSON.stringify(serialized),
+        viewport: JSON.stringify(serialized.viewport),
+      })
+    } finally { setIsSaving(false) }
+  }, [projectId])
+
+  const handleSaveAs = useCallback(async (name: string) => {
+    if (!name.trim()) return
+    setIsSaving(true)
+    try {
+      const serialized = useCanvasStore.getState().serialize()
+      const newId = await projectService.save({
+        name: name.trim(),
+        canvasState: JSON.stringify(serialized),
+        viewport: JSON.stringify(serialized.viewport),
+      })
+      onProjectIdChange(newId)
+      setShowSaveAs(false)
+    } finally { setIsSaving(false) }
+  }, [onProjectIdChange])
+
   if (elements.length === 0) {
     return (
       <div className="w-64 h-full bg-white border-l border-gray-200 flex flex-col">
@@ -76,8 +112,29 @@ export function LayerPanel() {
           Layers
         </div>
         <div className="flex-1 flex items-center justify-center text-gray-400 text-sm p-4 text-center">
-          No elements yet. Draw something on the canvas.
+          请绘制一些内容
         </div>
+        <div className="flex justify-center gap-2 px-3 py-3 border-t border-gray-200">
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 disabled:opacity-50 text-gray-700 font-medium"
+          >
+            {isSaving ? '保存中...' : '保存'}
+          </button>
+          <button
+            onClick={() => setShowSaveAs(true)}
+            className="px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 text-gray-700 font-medium"
+          >
+            另存
+          </button>
+        </div>
+        {showSaveAs && (
+          <SaveAsDialog
+            onSubmit={handleSaveAs}
+            onClose={() => setShowSaveAs(false)}
+          />
+        )}
       </div>
     )
   }
@@ -225,6 +282,83 @@ export function LayerPanel() {
           )
         })}
       </div>
+
+      {/* Save buttons — bottom of Layers panel */}
+      <div className="flex justify-center gap-2 px-3 py-3 border-t border-gray-200">
+        <button
+          onClick={handleSave}
+          disabled={isSaving}
+          className="px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 disabled:opacity-50 text-gray-700 font-medium"
+        >
+          {isSaving ? '保存中...' : '保存'}
+        </button>
+        <button
+          onClick={() => setShowSaveAs(true)}
+          className="px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 text-gray-700 font-medium"
+        >
+          另存
+        </button>
+      </div>
+
+      {/* Save As dialog */}
+      {showSaveAs && (
+        <SaveAsDialog
+          onSubmit={handleSaveAs}
+          onClose={() => setShowSaveAs(false)}
+        />
+      )}
+    </div>
+  )
+}
+
+function SaveAsDialog({
+  onSubmit,
+  onClose,
+}: {
+  onSubmit: (name: string) => void
+  onClose: () => void
+}) {
+  const [name, setName] = useState('')
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    onSubmit(name)
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white rounded-lg shadow-xl p-4 w-72"
+      >
+        <h3 className="text-sm font-semibold text-gray-700 mb-2">保存项目</h3>
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="项目名称"
+          autoFocus
+          className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded
+                     focus:outline-none focus:border-indigo-500 mb-3"
+        />
+        <div className="flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-3 py-1 text-xs text-gray-600 hover:bg-gray-100 rounded"
+          >
+            取消
+          </button>
+          <button
+            type="submit"
+            disabled={!name.trim()}
+            className="px-3 py-1 text-xs bg-indigo-600 text-white rounded
+                       hover:bg-indigo-700 disabled:opacity-50"
+          >
+            保存
+          </button>
+        </div>
+      </form>
     </div>
   )
 }

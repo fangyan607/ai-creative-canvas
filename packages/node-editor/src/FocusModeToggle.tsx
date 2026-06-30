@@ -1,7 +1,5 @@
 // ---------------------------------------------------------------------------
 // FocusModeToggle — Segmented button group for Canvas/Node mode switch
-// Active button: bg-black text-white. Inactive: bg-white text-black.
-// Keyboard hint text below each label.
 // ---------------------------------------------------------------------------
 
 export type FocusMode = 'canvas' | 'nodes'
@@ -13,7 +11,7 @@ export interface FocusModeToggleProps {
 
 function FocusModeToggle({ focusMode, onChange }: FocusModeToggleProps) {
   return (
-    <div className="inline-flex rounded-[var(--radius-pill)] overflow-hidden border border-[var(--color-hairline)]">
+    <div className="inline-flex rounded-[var(--radius-pill)] overflow-hidden border border-[var(--color-hairline)] shadow-sm bg-white">
       <button
         className={`px-4 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
           focusMode === 'canvas'
@@ -22,8 +20,7 @@ function FocusModeToggle({ focusMode, onChange }: FocusModeToggleProps) {
         }`}
         onClick={() => onChange('canvas')}
       >
-        Canvas
-        <span className="block text-[10px] opacity-60">Ctrl+Shift+C</span>
+        画布
       </button>
       <button
         className={`px-4 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
@@ -33,8 +30,7 @@ function FocusModeToggle({ focusMode, onChange }: FocusModeToggleProps) {
         }`}
         onClick={() => onChange('nodes')}
       >
-        Nodes
-        <span className="block text-[10px] opacity-60">Ctrl+Shift+N</span>
+        节点
       </button>
     </div>
   )

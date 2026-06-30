@@ -482,6 +482,7 @@ function OverlayInner({ focusMode, onFocusModeChange }: NodeEditorOverlayProps) 
   // ---------------------------------------------------------------------------
 
   return (
+    <>
     <div
       ref={reactFlowWrapper}
       className="absolute inset-0"
@@ -511,64 +512,6 @@ function OverlayInner({ focusMode, onFocusModeChange }: NodeEditorOverlayProps) 
         <Background gap={20} size={1} color="var(--color-hairline)" />
         <Controls showInteractive={false} />
 
-        {/* Focus Mode Toggle - top-left */}
-        <div className="absolute top-4 left-4 z-10">
-          <FocusModeToggle
-            focusMode={focusMode}
-            onChange={onFocusModeChange}
-          />
-        </div>
-
-        {/* Node Palette Toolbar - top-right */}
-        <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
-          {nodeTypeDefinitions.map((def) => {
-            const Icon = getToolbarIcon(def.icon)
-            return (
-              <button
-                key={def.type}
-                draggable
-                onDragStart={(e) => onDragStart(e, def.type)}
-                className="flex flex-col items-center gap-0.5 p-2 bg-white border border-[var(--color-hairline)] rounded-[var(--radius-md)] cursor-grab active:cursor-grabbing hover:bg-[var(--color-surface-secondary)] transition-colors"
-                title={def.label}
-              >
-                <Icon size={16} />
-                <span className="text-[10px] text-[var(--color-muted-foreground)]">
-                  {def.label}
-                </span>
-              </button>
-            )
-          })}
-          <div className="w-px h-8 bg-[var(--color-hairline)]" />
-
-          {/* Group create button */}
-          <button
-            onClick={() => {
-              // Create a group at a default position (center-ish of current viewport)
-              useNodeGraphStore.getState().createGroup('New Group', {
-                x: -150,
-                y: -100,
-              })
-              // Capture snapshot for undo (D-10)
-              useHistoryStore.getState().captureSnapshot()
-            }}
-            className="flex flex-col items-center gap-0.5 p-2 bg-white border border-[var(--color-hairline)] rounded-[var(--radius-md)] hover:bg-[var(--color-surface-secondary)] transition-colors cursor-pointer"
-            title="Create Group"
-          >
-            <FolderKanban size={16} />
-            <span className="text-[10px] text-[var(--color-muted-foreground)]">
-              Group
-            </span>
-          </button>
-
-          <div className="w-px h-8 bg-[var(--color-hairline)]" />
-          <button
-            onClick={() => setTemplateDialogOpen(true)}
-            className="flex items-center gap-1 px-3 py-2 bg-white border border-[var(--color-hairline)] rounded-[var(--radius-md)] text-xs font-medium text-[var(--color-foreground)] hover:bg-[var(--color-surface-secondary)] transition-colors cursor-pointer"
-          >
-            <Plus size={14} />
-            Quick Start
-          </button>
-        </div>
       </ReactFlow>
 
       {/* -- Delete Confirmation Dialog -- */}
@@ -606,9 +549,9 @@ function OverlayInner({ focusMode, onFocusModeChange }: NodeEditorOverlayProps) 
         />
       )}
     </div>
+    </>
   )
 }
-
 // ---------------------------------------------------------------------------
 // TemplateDialog import (at bottom to avoid issues with module resolution
 // before TemplateDialog.tsx exists in Task 3)

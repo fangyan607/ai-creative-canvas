@@ -2,14 +2,44 @@ import { useState, useCallback, useEffect } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { CanvasWrapper } from './components/CanvasWrapper'
 import { LayerPanel } from './components/LayerPanel'
-import { SaveButton } from './components/SaveButton'
 import { useAutoSave } from './hooks/useAutoSave'
 import { useAutoExecute } from './hooks/useAutoExecute'
 import { useEngineStore } from './stores/engineStore'
 import { useNodeGraphStore } from './stores/nodeGraphStore'
+import { useHistoryStore } from './stores/historyStore'
 import { NodeEditorOverlay } from '@ac-canvas/node-editor'
 import { PropertyPanel } from '@ac-canvas/node-editor'
-import { FocusModeToggle } from '@ac-canvas/node-editor'
+import { nodeTypeDefinitions } from '@ac-canvas/shared'
+import {
+  MessageSquareText,
+  WandSparkles,
+  Palette,
+  Layers,
+  Eye,
+  Plus,
+  FolderKanban,
+  type LucideIcon,
+} from 'lucide-react'
+
+const TOOLBAR_ICON_MAP: Record<string, LucideIcon> = {
+  'message-square-text': MessageSquareText,
+  'wand-sparkles': WandSparkles,
+  palette: Palette,
+  layers: Layers,
+  eye: Eye,
+}
+
+function getToolbarIcon(iconName: string): LucideIcon {
+  return TOOLBAR_ICON_MAP[iconName] || Plus
+}
+
+const NODE_LABELS_CN: Record<string, string> = {
+  prompt: '提示词',
+  'text-to-image': '文生图',
+  style: '风格',
+  merge: '合并',
+  preview: '预览',
+}
 
 function App() {
   const [projectId, setProjectId] = useState<number | null>(null)
@@ -53,14 +83,13 @@ function App() {
   return (
     <div className="w-screen h-screen overflow-hidden flex relative">
       {/* Left sidebar — LayerPanel always visible */}
-      <LayerPanel />
+      <LayerPanel
+        projectId={projectId}
+        onProjectIdChange={handleProjectIdChange}
+      />
 
       {/* Center area — contains canvas + node overlay stacked */}
       <div className="flex-1 relative">
-        <SaveButton
-          projectId={projectId}
-          onProjectIdChange={handleProjectIdChange}
-        />
 
         {/* Canvas — disabled when in node mode */}
         <CanvasWrapper disabled={isNodeMode} />
@@ -71,14 +100,72 @@ function App() {
           onFocusModeChange={handleFocusModeChange}
         />
 
-        {/* Focus mode toggle — top-left over both canvas and overlay */}
-        <FocusModeToggle
-          focusMode={focusMode}
-          onChange={handleFocusModeChange}
-        />
+        {/* Focus mode toggle — bottom-right (replaces SaveButton position) */}
+        <div className="absolute bottom-5 right-[60px] z-10 flex gap-1">
+          <button
+            className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg border transition-colors shadow-sm min-w-[56px] ${
+              focusMode === 'canvas'
+                ? 'bg-gray-900 text-white border-gray-900'
+                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+            }`}
+            onClick={() => handleFocusModeChange('canvas')}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            <span className="text-[10px] whitespace-nowrap">画布</span>
+          </button>
+          <button
+            className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg border transition-colors shadow-sm min-w-[56px] ${
+              focusMode === 'nodes'
+                ? 'bg-gray-900 text-white border-gray-900'
+                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+            }`}
+            onClick={() => handleFocusModeChange('nodes')}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="3"/></svg>
+            <span className="text-[10px] whitespace-nowrap">节点</span>
+          </button>
+        </div>
 
-        {/* Execution status indicator — bottom-right */}
-        <div className="absolute bottom-4 right-4 z-50 flex items-center gap-2">
+        {/* Node palette toolbar — bottom-center */}
+        <div
+          className="absolute bottom-2.5 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-xl px-3 py-2 shadow-md"
+          style={{ display: isNodeMode ? 'flex' : 'none' }}
+        >
+          {nodeTypeDefinitions.map((def) => {
+            const Icon = getToolbarIcon(def.icon)
+            const cnLabel = NODE_LABELS_CN[def.type] || def.label
+            return (
+              <button
+                key={def.type}
+                draggable
+                onDragStart={(e) => {
+                  e.dataTransfer.setData('application/reactflow', def.type)
+                  e.dataTransfer.effectAllowed = 'move'
+                }}
+                className="flex flex-col items-center gap-0.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg cursor-grab active:cursor-grabbing hover:bg-gray-50 transition-colors shadow-sm min-w-[56px]"
+                title={def.label}
+              >
+                <Icon size={18} />
+                <span className="text-[10px] text-gray-600 whitespace-nowrap">{cnLabel}</span>
+              </button>
+            )
+          })}
+          <div className="w-px h-8 bg-gray-300" />
+          <button
+            onClick={() => {
+              useNodeGraphStore.getState().createGroup('New Group', { x: -150, y: -100 })
+              useHistoryStore.getState().captureSnapshot()
+            }}
+            className="flex flex-col items-center gap-0.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer shadow-sm min-w-[56px]"
+            title="Create Group"
+          >
+            <FolderKanban size={18} />
+            <span className="text-[10px] text-gray-600 whitespace-nowrap">分组</span>
+          </button>
+        </div>
+
+        {/* Execution status indicator — bottom-left, above mode toggle */}
+        <div className="absolute bottom-12 left-2.5 z-50 flex items-center gap-2">
           {isExecuting && (
             <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white border border-[var(--color-hairline)] rounded-full text-[11px] text-[var(--color-muted-foreground)] shadow-sm">
               <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />

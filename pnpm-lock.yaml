@@ -7,7 +7,14 @@ settings:
 importers:
 
   .:
+    dependencies:
+      '@excalidraw/laser-pointer':
+        specifier: 1.3.1
+        version: 1.3.1
     devDependencies:
+      '@braintree/sanitize-url':
+        specifier: 6.0.1
+        version: 6.0.1
       sass:
         specifier: ^1.101.0
         version: 1.101.0
@@ -20,6 +27,9 @@ importers:
       '@ac-canvas/excalidraw':
         specifier: workspace:*
         version: link:../../packages/excalidraw
+      '@ac-canvas/node-editor':
+        specifier: workspace:*
+        version: link:../../packages/node-editor
       '@ac-canvas/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -29,6 +39,9 @@ importers:
       '@fontsource-variable/geist':
         specifier: ^5.2.9
         version: 5.2.9
+      '@xyflow/react':
+        specifier: ^12.11.1
+        version: 12.11.1(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(immer@11.1.8)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -106,8 +119,8 @@ importers:
   packages/excalidraw:
     dependencies:
       '@braintree/sanitize-url':
-        specifier: 6.0.2
-        version: 6.0.2
+        specifier: 6.0.1
+        version: 6.0.1
       '@excalidraw/laser-pointer':
         specifier: 1.3.1
         version: 1.3.1
@@ -121,8 +134,8 @@ importers:
         specifier: 1.1.0
         version: 1.1.0
       '@excalidraw/utils':
-        specifier: 0.1.3-test32
-        version: 0.1.3-test32
+        specifier: workspace:*
+        version: link:utils
       '@radix-ui/react-popover':
         specifier: 1.1.6
         version: 1.1.6(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -211,6 +224,8 @@ importers:
         specifier: 0.1.2
         version: 0.1.2(immer@11.1.8)(react@19.2.7)
 
+  packages/excalidraw/utils: {}
+
   packages/node-editor:
     dependencies:
       '@ac-canvas/shared':
@@ -249,7 +264,7 @@ importers:
         version: link:../excalidraw
     devDependencies:
       typescript:
-        specifier: ^5.0.2
+        specifier: ^5.0.0
         version: 5.0.2
 
 packages:
@@ -448,8 +463,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@braintree/sanitize-url@6.0.2':
-    resolution: {integrity: sha512-Tbsj02wXCbqGmzdnXNk0SOF19ChhRU70BsroIi4Pm6Ehp56in6vch94mfbdQ17DozxkL3BAVjbZ4Qc1a0HFRAg==}
+  '@braintree/sanitize-url@6.0.1':
+    resolution: {integrity: sha512-zr9Qs9KFQiEvMWdZesjcmRJlUck5NR+eKGS1uyKk+oYTWwlYrsoPEi6VmG6/TzBD1hKCGEimrhTgGS6hvn/xIQ==}
 
   '@bramus/specificity@2.4.2':
     resolution: {integrity: sha512-ctxtJ/eA+t+6q2++vj5j7FYX3nRu311q1wfYH3xjlLOsczhlhxAg2FWNUXhpGvAw3BWo1xBcvOV6/YLc2r5FJw==}
@@ -525,9 +540,6 @@ packages:
   '@excalidraw/random-username@1.1.0':
     resolution: {integrity: sha512-nULYsQxkWHnbmHvcs+efMkJ4/9TtvNyFeLyHdeGxW0zHs6P+jYVqcRff9A6Vq9w9JXeDRnRh2VKvTtS19GW2qA==}
     engines: {node: '>=10'}
-
-  '@excalidraw/utils@0.1.3-test32':
-    resolution: {integrity: sha512-xOXYkkR6bRneoW4in5Ha5Iz2PyS9R9vPpzW7jcTOEE1ae9D5cz5hwBT8BxXfGKWp+YTCyHRHIJaa0ZhlW4H5nQ==}
 
   '@exodus/bytes@1.15.1':
     resolution: {integrity: sha512-S6mL0yNB/Abt9Ei4tq8gDhcczc4S3+vQ4ra7vxnAf+YHC02srtqxKKZghx2Dq6p0e66THKwR6r8N6P95wEty7Q==}
@@ -3672,7 +3684,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.17
 
-  '@braintree/sanitize-url@6.0.2': {}
+  '@braintree/sanitize-url@6.0.1': {}
 
   '@bramus/specificity@2.4.2':
     dependencies:
@@ -3758,19 +3770,6 @@ snapshots:
       - supports-color
 
   '@excalidraw/random-username@1.1.0': {}
-
-  '@excalidraw/utils@0.1.3-test32':
-    dependencies:
-      '@braintree/sanitize-url': 6.0.2
-      '@excalidraw/laser-pointer': 1.3.1
-      browser-fs-access: 0.29.1
-      open-color: 1.9.1
-      pako: 2.0.3
-      perfect-freehand: 1.2.0
-      png-chunk-text: 1.0.0
-      png-chunks-encode: 1.0.0
-      png-chunks-extract: 1.0.0
-      roughjs: 4.6.4
 
   '@exodus/bytes@1.15.1': {}
 
@@ -5535,7 +5534,7 @@ snapshots:
 
   mermaid@10.9.3:
     dependencies:
-      '@braintree/sanitize-url': 6.0.2
+      '@braintree/sanitize-url': 6.0.1
       '@types/d3-scale': 4.0.9
       '@types/d3-scale-chromatic': 3.1.0
       cytoscape: 3.34.0
