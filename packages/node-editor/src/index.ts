@@ -34,3 +34,11 @@ export type { NodeEditorOverlayProps } from './NodeEditorOverlay'
 // Property Panel
 export { PropertyPanel } from './PropertyPanel'
 export type { PropertyPanelProps } from './PropertyPanel'
+
+// Template Dialog
+export { TemplateDialog } from './TemplateDialog'
+export type { TemplateDialogProps } from './TemplateDialog'
+
+// Templates
+export { TEMPLATES, applyTemplate } from './templates'
+export type { Template } from './templates'
