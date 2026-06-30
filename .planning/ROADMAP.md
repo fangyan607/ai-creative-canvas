@@ -67,11 +67,11 @@ From foundation to full creative tool: we start by establishing the infinite can
 **Plans**: 5 plans in 3 waves
 **UI hint**: yes
 **Plan list:**
-- [ ] 03-01-PLAN.md — Types & Contracts: parentId, GroupNodeData, ExecutionStatus, engine type system (Wave 1)
-- [ ] 03-02-PLAN.md — Engine Core: toExecutionLayers, findAffectedDownstream, NodeEngine, EngineStore, stub resolvers, unit tests (Wave 2)
-- [ ] 03-03-PLAN.md — GroupNode + Status UI: GroupNode component with collapse/expand, BaseNode status indicator (Wave 2)
-- [ ] 03-04-PLAN.md — Store Extensions: NodeGraphStore group CRUD, HistoryStore engine state (Wave 2)
-- [ ] 03-05-PLAN.md — Wiring + Verification: useAutoExecute, NodeEditorOverlay integration, App.tsx, checkpoint (Wave 3)
+- [x] 03-01-PLAN.md — Types & Contracts: parentId, GroupNodeData, ExecutionStatus, engine type system (Wave 1)
+- [x] 03-02-PLAN.md — Engine Core: toExecutionLayers, findAffectedDownstream, NodeEngine, EngineStore, stub resolvers, unit tests (Wave 2)
+- [x] 03-03-PLAN.md — GroupNode + Status UI: GroupNode component with collapse/expand, BaseNode status indicator (Wave 2)
+- [x] 03-04-PLAN.md — Store Extensions: NodeGraphStore group CRUD, HistoryStore engine state (Wave 2)
+- [x] 03-05-PLAN.md — Wiring + Verification: useAutoExecute, NodeEditorOverlay integration, App.tsx, checkpoint (Wave 3)
 
 ### Phase 4: AI Adapters
 **Goal**: System generates images through multiple AI providers via a clean adapter pattern with user-owned keys

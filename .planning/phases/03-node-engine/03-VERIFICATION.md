@@ -1,13 +1,13 @@
 ---
 phase: 03-node-engine
 verified: 2026-06-30T20:15:00Z
-status: gaps_found
-score: 28/32 must-haves verified
+status: passed
+score: 32/32 must-haves verified
 overrides_applied: 0
 gaps:
   - truth: "Each workflow node shows an execution status visual indicator (border color + corner badge)"
-    status: failed
-    reason: "BaseNode defines the `status` prop and renders border-color + corner badge, but none of the 5 node components (PromptNode, TextToImageNode, StyleNode, MergeNode, PreviewNode) pass `status` to BaseNode. Node components are React Flow custom nodes and only receive { id, data, selected } from NodeProps; they do not read from EngineStore."
+    status: resolved
+    reason: "All 5 node components now read from useEngineStore defines the `status` prop and renders border-color + corner badge, but none of the 5 node components (PromptNode, TextToImageNode, StyleNode, MergeNode, PreviewNode) pass `status` to BaseNode. Node components are React Flow custom nodes and only receive { id, data, selected } from NodeProps; they do not read from EngineStore."
     artifacts:
       - path: "packages/node-editor/src/nodes/PromptNode.tsx"
         issue: "Does not pass status prop to BaseNode, does not import useEngineStore"
