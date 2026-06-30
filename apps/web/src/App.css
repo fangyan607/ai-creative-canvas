@@ -40,3 +40,13 @@ html, body, #root {
   height: 100%;
   overflow: hidden;
 }
+
+/* Hide Excalidraw chrome when canvas is disabled (node mode) */
+.canvas-disabled .App-menu,
+.canvas-disabled .help-icon,
+.canvas-disabled .reset-zoom-button,
+.canvas-disabled .layer-ui__wrapper {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 150ms ease;
+}

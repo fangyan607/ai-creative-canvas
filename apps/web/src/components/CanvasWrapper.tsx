@@ -96,7 +96,7 @@ export function CanvasWrapper({ disabled = false }: CanvasWrapperProps) {
 
   return (
     <div
-      className={`w-full h-full relative ${disabled ? 'pointer-events-none' : ''}`}
+      className={`w-full h-full relative ${disabled ? 'pointer-events-none canvas-disabled' : ''}`}
       style={{ touchAction: 'none' }}
       onPointerDown={disabled ? undefined : handlePointerDown}
       onPointerUp={disabled ? undefined : handlePointerUp}

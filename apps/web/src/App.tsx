@@ -128,9 +128,10 @@ function App() {
 
         {/* Node palette toolbar — bottom-center */}
         <div
-          className="absolute bottom-2.5 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-xl px-3 py-2 shadow-md"
+          className="absolute bottom-2.5 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-1"
           style={{ display: isNodeMode ? 'flex' : 'none' }}
         >
+          <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-xl px-3 py-2 shadow-md">
           {nodeTypeDefinitions.map((def) => {
             const Icon = getToolbarIcon(def.icon)
             const cnLabel = NODE_LABELS_CN[def.type] || def.label
@@ -143,7 +144,7 @@ function App() {
                   e.dataTransfer.effectAllowed = 'move'
                 }}
                 className="flex flex-col items-center gap-0.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg cursor-grab active:cursor-grabbing hover:bg-gray-50 transition-colors shadow-sm min-w-[56px]"
-                title={def.label}
+                title={def.label + ' — 拖拽到画布创建'}
               >
                 <Icon size={18} />
                 <span className="text-[10px] text-gray-600 whitespace-nowrap">{cnLabel}</span>
@@ -157,11 +158,13 @@ function App() {
               useHistoryStore.getState().captureSnapshot()
             }}
             className="flex flex-col items-center gap-0.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer shadow-sm min-w-[56px]"
-            title="Create Group"
+            title="创建分组 — 点击创建空组"
           >
             <FolderKanban size={18} />
             <span className="text-[10px] text-gray-600 whitespace-nowrap">分组</span>
           </button>
+          </div>
+          <div className="text-[9px] text-gray-400 tracking-wide">拖拽按钮到画布创建节点</div>
         </div>
 
         {/* Execution status indicator — bottom-left, above mode toggle */}
