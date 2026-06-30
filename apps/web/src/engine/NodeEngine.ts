@@ -212,7 +212,7 @@ export class NodeEngine {
             inputs[edge.sourceHandle] = nodeOutputs.get(edge.source)
           }
 
-          const output = await executor(node.data, inputs)
+          const output = await executor(node.data as unknown as Record<string, unknown>, inputs)
           nodeOutputs.set(nodeId, output)
           this.nodeStatus.set(nodeId, 'done')
           executedNodes.push(nodeId)
