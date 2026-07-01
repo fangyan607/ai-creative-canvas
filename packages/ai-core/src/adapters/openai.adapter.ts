@@ -17,7 +17,7 @@ import type {
   ModelDescriptor,
   ConfigField,
 } from '../interfaces/types'
-import { AiAdapterError } from '../interfaces/types'
+import { AiAdapterError, sanitizeErrorMessage } from '../interfaces/types'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -40,15 +40,6 @@ const DEFAULT_STYLE = 'vivid'
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-/**
- * Sanitize an error message by stripping patterns that look like API keys.
- * This prevents accidental key leakage in error surfaces (Pitfall 4).
- */
-function sanitizeErrorMessage(message: string): string {
-  // Strip "sk-..." patterns (OpenAI API keys)
-  return message.replace(/sk-[A-Za-z0-9]{20,}/g, 'sk-***')
-}
 
 /**
  * Decode a base64 string to a Uint8Array.

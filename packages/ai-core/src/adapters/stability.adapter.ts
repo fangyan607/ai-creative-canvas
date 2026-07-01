@@ -17,7 +17,7 @@ import type {
   ModelDescriptor,
   ConfigField,
 } from '../interfaces/types'
-import { AiAdapterError } from '../interfaces/types'
+import { AiAdapterError, sanitizeErrorMessage } from '../interfaces/types'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -90,7 +90,7 @@ function computeAspectRatio(width: number, height: number): string {
  * This mitigates Pitfall 4 (key leakage via error messages).
  */
 function sanitizeError(message: string): string {
-  return message.replace(/sk-[a-zA-Z0-9-]+/g, '[REDACTED]')
+  return sanitizeErrorMessage(message)
 }
 
 /**

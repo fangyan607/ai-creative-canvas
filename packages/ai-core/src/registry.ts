@@ -7,7 +7,9 @@
 
 import type { AiAdapter } from './interfaces/AiAdapter'
 
-type AdapterConstructor = new (...args: unknown[]) => AiAdapter
+// Constructor signature matching concrete adapter classes (OpenAiAdapter,
+// MockAdapter, StabilityAdapter all accept optional options objects).
+type AdapterConstructor = { new (options?: Record<string, unknown>): AiAdapter }
 
 export class AdapterRegistry {
   private static instance: AdapterRegistry

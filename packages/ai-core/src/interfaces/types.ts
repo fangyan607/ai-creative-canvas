@@ -53,6 +53,21 @@ export interface ProviderConfig {
 }
 
 // === Custom Error (D-04) ===
+// ---------------------------------------------------------------------------
+// Shared Error Sanitization (Pitfall 4 — prevent API key leakage)
+// ---------------------------------------------------------------------------
+
+const API_KEY_PATTERN = /sk-[A-Za-z0-9-]+/g
+const SANITIZED_REPLACEMENT = 'sk-***'
+
+/**
+ * Sanitize an error message by stripping patterns that look like API keys.
+ * Uses a unified regex pattern and replacement across all adapters (WR-04).
+ */
+export function sanitizeErrorMessage(message: string): string {
+  return message.replace(API_KEY_PATTERN, SANITIZED_REPLACEMENT)
+}
+
 export class AiAdapterError extends Error {
   constructor(
     public code: string,

@@ -397,8 +397,8 @@ describe('StabilityAdapter', () => {
       try {
         await adapter.execute({ prompt: 'test' }, {})
       } catch (e: any) {
-        expect(e.message).not.toContain('sk-')
-        expect(e.message).not.toContain('sk-test')
+        expect(e.message).not.toContain('sk-test') // raw key not leaked
+        expect(e.message).toContain('sk-***')        // unified placeholder present
       }
     })
 
