@@ -24,13 +24,7 @@ import { SettingsPage } from './pages/SettingsPage'
 function AppShell() {
   return (
     <div className="w-screen h-screen overflow-hidden flex flex-col bg-background text-foreground">
-      <TopBar
-        projectName="无标题项目"
-        saving={false}
-        onProjectNameChange={() => {
-          // Will be wired to project store in Plan 02
-        }}
-      />
+      <TopBar />
       <div className="flex-1 flex overflow-hidden">
         <TabbedSidebar />
         <main className="flex-1 relative overflow-hidden">

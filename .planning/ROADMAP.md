@@ -117,9 +117,9 @@ From foundation to full creative tool: we start by establishing the infinite can
   4. User can navigate to a settings page and configure AI API keys, default provider, and other preferences
 **Plans**: 3 plans in 2 waves
 **Plan list:**
-- [ ] 07-01-PLAN.md — Foundation: UIPrefsStore, shortcuts, dark mode, AppShell layout, TabbedSidebar, CanvasPage, slider refactor (Wave 1)
+- [x] 07-01-PLAN.md — Foundation: UIPrefsStore, shortcuts, dark mode, AppShell layout, TabbedSidebar, CanvasPage, slider refactor (Wave 1)
 - [ ] 07-02-PLAN.md — Projects + Export: ProjectsPage with grid CRUD, ExportButton+ExportDialog, ProgressPanel, ExecutionLog (Wave 2)
-- [ ] 07-03-PLAN.md — Settings + Tools: SettingsPage, PromptEditor, ShortcutPanel, keyboard shortcut wiring (Wave 2)
+- [ ] 07-03-PLAN.md — Settings + Tools: SettingsPage, PromptEditor, ShortcutPanel, keyboard shortcut wiring (Wave 3)
 
 ### Phase 8: Testing & Performance
 **Goal**: Critical paths and edge cases are covered by automated tests
@@ -144,7 +144,7 @@ From foundation to full creative tool: we start by establishing the infinite can
 | 4. AI Adapters | 0/0 | Not started | - |
 | 5. AI Execution Infrastructure | 0/0 | Not started | - |
 | 6. Backend Services | 2/2 | Complete    | 2026-07-01 |
-| 7. Application UI | 0/3 | Ready | - |
+| 7. Application UI | 1/3 | In Progress|  |
 | 8. Testing & Performance | 0/0 | Not started | - |
 
 *Updated after each plan completion*

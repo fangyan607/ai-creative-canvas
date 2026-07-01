@@ -4,3 +4,4 @@ dist/
 *.local
 design-md/
 apps/backend/uploads/
+.claude/worktrees/

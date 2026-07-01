@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { TooltipProvider } from '@/components/ui/tooltip'
 
@@ -16,6 +16,51 @@ vi.mock('../../components/CanvasWrapper', () => ({
 vi.mock('@ac-canvas/node-editor', () => ({
   NodeEditorOverlay: () => <div data-testid="node-editor-overlay" />,
   PropertyPanel: () => <div data-testid="property-panel" />,
+  TEMPLATES: [],
+  applyTemplate: () => null,
+}))
+
+// Mock @ac-canvas/excalidraw — ExportButton imports exportToBlob which uses
+// canvas API (not available in jsdom)
+vi.mock('@ac-canvas/excalidraw', () => ({
+  exportToBlob: vi.fn().mockResolvedValue(new Blob()),
+  exportToCanvas: vi.fn().mockResolvedValue(document.createElement('canvas')),
+}))
+
+// Mock projectStore — TopBar now reads from it instead of props
+vi.mock('../../stores/projectStore', () => ({
+  useProjectStore: vi.fn((selector) => {
+    const state = {
+      projectName: '无标题项目',
+      isSaving: false,
+      setProjectName: vi.fn(),
+      setIsSaving: vi.fn(),
+      projectId: null,
+      setProjectId: vi.fn(),
+    }
+    return selector ? selector(state) : state
+  }),
+}))
+
+// Mock ExportButton — included in TopBar
+vi.mock('../../components/ExportButton', () => ({
+  ExportButton: () => <div data-testid="export-button">Export</div>,
+}))
+
+// Mock ProgressPanel — included in CanvasPage
+vi.mock('../../components/ProgressPanel', () => ({
+  ProgressPanel: () => <div data-testid="progress-panel" />,
+}))
+
+// Mock projectService — ProjectsPage imports it
+vi.mock('../../indexedb/projectService', () => ({
+  projectService: {
+    list: vi.fn().mockResolvedValue([]),
+    save: vi.fn(),
+    load: vi.fn(),
+    delete: vi.fn(),
+    update: vi.fn(),
+  },
 }))
 
 import App from '../../App'

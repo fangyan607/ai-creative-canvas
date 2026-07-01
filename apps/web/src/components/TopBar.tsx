@@ -10,18 +10,15 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Image, FolderKanban, Settings } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useProjectStore } from '@/stores/projectStore'
+import { ExportButton } from '@/components/ExportButton'
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
 export interface TopBarProps {
-  /** Current project name displayed in the top bar. */
-  projectName: string
-  /** Whether there are unsaved changes or save is in progress. */
-  saving: boolean
-  /** Called when the user edits the project name inline. */
-  onProjectNameChange: (name: string) => void
+  // No props needed — reads from useProjectStore
 }
 
 // ---------------------------------------------------------------------------
@@ -53,7 +50,10 @@ const VIEWS: ViewItem[] = [
 // Component
 // ---------------------------------------------------------------------------
 
-export function TopBar({ projectName, saving, onProjectNameChange }: TopBarProps) {
+export function TopBar(_props: TopBarProps) {
+  const projectName = useProjectStore((s) => s.projectName)
+  const saving = useProjectStore((s) => s.isSaving)
+  const setProjectName = useProjectStore((s) => s.setProjectName)
   const location = useLocation()
   const navigate = useNavigate()
   const [isEditing, setIsEditing] = useState(false)
@@ -82,11 +82,11 @@ export function TopBar({ projectName, saving, onProjectNameChange }: TopBarProps
   const handleFinishEdit = useCallback(() => {
     setIsEditing(false)
     if (editValue.trim() && editValue !== projectName) {
-      onProjectNameChange(editValue.trim())
+      setProjectName(editValue.trim())
     } else {
       setEditValue(projectName)
     }
-  }, [editValue, projectName, onProjectNameChange])
+  }, [editValue, projectName, setProjectName])
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -131,9 +131,14 @@ export function TopBar({ projectName, saving, onProjectNameChange }: TopBarProps
       )}
 
       {/* Save status indicator */}
-      <span className="text-xs text-muted-foreground">
+      <span className="text-xs text-muted-foreground" data-testid="save-status">
         {saving ? SAVE_STATUS['true'] : SAVE_STATUS['false']}
       </span>
+
+      {/* Export button — only on canvas view */}
+      {location.pathname === '/' && (
+        <ExportButton />
+      )}
 
       {/* Spacer */}
       <div className="flex-1" />

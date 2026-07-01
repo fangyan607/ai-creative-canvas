@@ -8,9 +8,11 @@
 // - Execution status indicator (bottom-left)
 // - Adapter registration, ProviderStore init, SSE init
 // - PropertyPanel rendered inline (will move to TabbedSidebar properties tab in Plan 02)
+// - Auto-save logic wired to projectStore (Plan 02+)
+// - ProgressPanel at the bottom of the canvas area
 // ---------------------------------------------------------------------------
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { AdapterRegistry } from '@ac-canvas/ai-core'
 import { MockAdapter } from '@ac-canvas/ai-core/adapters/mock.adapter'
@@ -18,12 +20,15 @@ import { OpenAiAdapter } from '@ac-canvas/ai-core/adapters/openai.adapter'
 import { StabilityAdapter } from '@ac-canvas/ai-core/adapters/stability.adapter'
 import { initProviderStore } from '../stores/providerStoreSingleton'
 import { CanvasWrapper } from '../components/CanvasWrapper'
-import { useAutoSave } from '../hooks/useAutoSave'
+import { ProgressPanel } from '../components/ProgressPanel'
 import { useAutoExecute } from '../hooks/useAutoExecute'
 import { useEngineStore } from '../stores/engineStore'
 import { initSSE, useSSEProgress } from '../services/useSSEProgress'
 import { useNodeGraphStore } from '../stores/nodeGraphStore'
+import { useCanvasStore } from '../stores/canvasStore'
 import { useHistoryStore } from '../stores/historyStore'
+import { useProjectStore } from '../stores/projectStore'
+import { projectService } from '../indexedb/projectService'
 import { NodeEditorOverlay, PropertyPanel } from '@ac-canvas/node-editor'
 import { nodeTypeDefinitions } from '@ac-canvas/shared'
 import {
@@ -57,6 +62,60 @@ const NODE_LABELS_CN: Record<string, string> = {
   preview: '预览',
 }
 
+// ---------------------------------------------------------------------------
+// Auto-save debounce hook (180ms debounce per D-15)
+// ---------------------------------------------------------------------------
+
+function useProjectAutoSave(projectId: number | null) {
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const projectIdRef = useRef(projectId)
+  projectIdRef.current = projectId
+
+  const save = useCallback(async () => {
+    const pid = projectIdRef.current
+    if (pid === null) return
+
+    useProjectStore.getState().setIsSaving(true)
+    try {
+      const canvasStr = JSON.stringify(useCanvasStore.getState().serialize())
+      const graphStr = JSON.stringify(useNodeGraphStore.getState().serialize())
+
+      await projectService.update(pid, {
+        canvasState: canvasStr,
+        nodeGraph: graphStr,
+      })
+    } finally {
+      useProjectStore.getState().setIsSaving(false)
+    }
+  }, [])
+
+  // Subscribe to store changes
+  useEffect(() => {
+    if (projectId === null) return
+
+    const debounced = () => {
+      clearTimeout(debounceRef.current)
+      debounceRef.current = setTimeout(save, 180)
+    }
+
+    const u1 = useCanvasStore.subscribe(() => debounced())
+    const u2 = useNodeGraphStore.subscribe(() => debounced())
+
+    return () => {
+      clearTimeout(debounceRef.current)
+      u1()
+      u2()
+    }
+  }, [projectId, save])
+
+  // Persist projectId when it changes
+  useEffect(() => {
+    if (projectId !== null) {
+      useProjectStore.getState().setProjectId(projectId)
+    }
+  }, [projectId])
+}
+
 export function CanvasPage() {
   const [projectId, setProjectId] = useState<number | null>(null)
 
@@ -67,7 +126,7 @@ export function CanvasPage() {
 
   const isNodeMode = focusMode === 'nodes'
 
-  useAutoSave(projectId)
+  useProjectAutoSave(projectId)
   useAutoExecute()
   useSSEProgress()
 
@@ -208,6 +267,9 @@ export function CanvasPage() {
 
       {/* Right sidebar — PropertyPanel visible when a node is selected */}
       <PropertyPanel selectedNodeId={selectedNodeId} />
+
+      {/* Execution progress panel — collapsible bottom panel */}
+      <ProgressPanel />
     </div>
   )
 }

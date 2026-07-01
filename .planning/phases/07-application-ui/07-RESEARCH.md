@@ -478,19 +478,19 @@ export function AppShell() {
 | A3 | `TooltipProvider` from shadcn/ui tooltip wraps the app; its import path is `@/components/ui/tooltip` | Architecture Patterns | Low — verified the generated code shows the TooltipProvider pattern. The export exists. |
 | A4 | Zustand `persist` middleware can serialize/deserialize complex objects (theme, exportDefaults) | Code Examples | Low — `persist` works with JSON-serializable values. Theme and export defaults are primitives. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **How to generate project card thumbnails?**
+1. **How to generate project card thumbnails?** [RESOLVED: Lazy generation on /projects navigation]
    - What we know: D-05 mentions canvas thumbnail preview. The auto-save cycle runs every 180ms.
    - What's unclear: Should thumbnails be generated as a byproduct of auto-save? Or lazily when the project list is opened? The "as a byproduct" approach adds cost to every auto-save (even when project list isn't visible).
    - Recommendation: Generate thumbnail lazily — when user navigates to `/projects`, iterate project list and generate thumbnails via `exportToCanvas` at low resolution (200x150) from stored `canvasState`. Cache in IndexedDB blob store with TTL.
 
-2. **How to handle the prompt template editor persistence?**
+2. **How to handle the prompt template editor persistence?** [RESOLVED: Add promptTemplates table to db.ts v3]
    - What we know: Phase 4 defines templates as TypeScript constants. D-16 adds runtime editing.
    - What's unclear: Should user-created templates be stored in IndexedDB (new table) or in-memory only?
    - Recommendation: Add a `promptTemplates` table to `db.ts` schema version 3. TemplateEngine can be extended to merge TypeScript constants with IndexedDB records at runtime. User edits write to IndexedDB; built-in templates are read-only from constants.
 
-3. **Keyboard shortcut for canvas mode vs node mode?**
+3. **Keyboard shortcut for canvas mode vs node mode?** [RESOLVED: Tab to switch, Escape to deselect]
    - What we know: D-17 formalizes shortcuts. Current codebase has two modes (canvas/nodes) with a floating toggle button.
    - What's unclear: Should pressing Escape in node mode return to canvas mode? Should Tab cycle between modes?
    - Recommendation: Tab to switch between modes. Escape deselects current node. Document bindings in the ShortcutPanel.
