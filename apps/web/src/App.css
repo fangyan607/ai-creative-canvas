@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ============================================================
    AI Creative Canvas — Design System
    Inspired by: Figma marketing design language + Excalidraw hand-drawn warmth
