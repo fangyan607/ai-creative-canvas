@@ -176,20 +176,17 @@ export function TabbedSidebar() {
 
           return (
             <Tooltip key={tab.id}>
-              <TooltipTrigger>
-                <button
-                  onClick={() => handleTabClick(tab.id)}
-                  className={`
-                    flex items-center justify-center w-9 h-9 rounded-md transition-colors
-                    ${
-                      isActive
-                        ? 'bg-accent text-accent-foreground'
-                        : 'text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent'
-                    }
-                  `}
-                >
-                  <Icon size={18} />
-                </button>
+              <TooltipTrigger
+                className={`
+                  flex items-center justify-center w-9 h-9 rounded-md transition-colors
+                  ${isActive
+                    ? 'bg-accent text-accent-foreground'
+                    : 'text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent'
+                  }
+                `}
+                onClick={() => handleTabClick(tab.id)}
+              >
+                <Icon size={18} />
               </TooltipTrigger>
               <TooltipContent side="right" sideOffset={8}>
                 {tab.label}
