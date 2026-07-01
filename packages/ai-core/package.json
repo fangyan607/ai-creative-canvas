@@ -12,13 +12,13 @@
     "./prompt/*": "./src/prompt/*"
   },
   "dependencies": {
-    "tempura": "^0.4.1",
-    "eventemitter3": "^5.0.1"
+    "eventemitter3": "^5.0.4",
+    "tempura": "^0.4.1"
   },
   "devDependencies": {
-    "typescript": "^5.0.0",
-    "vitest": "^4.1.9",
+    "fake-indexeddb": "^6.2.5",
     "jsdom": "^29.1.1",
-    "fake-indexeddb": "^6.2.5"
+    "typescript": "^5.0.0",
+    "vitest": "^4.1.9"
   }
 }
