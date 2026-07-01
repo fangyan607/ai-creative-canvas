@@ -114,7 +114,10 @@ From foundation to full creative tool: we start by establishing the infinite can
   1. Client sends AI generation requests through the backend proxy; API keys remain server-side only
   2. User can upload image files to the backend and download them later
   3. Frontend works in both direct-API-key mode (dev) and backend-proxy mode (production) with a configuration toggle
-**Plans**: TBD
+**Plans**: 2 plans in 2 waves
+**Plan list:**
+- [ ] 06-01-PLAN.md — Backend infrastructure: Hono app factory, SSE broadcast/AI proxy/file upload routes, tests (Wave 1)
+- [ ] 06-02-PLAN.md — Frontend integration: Vite proxy, SSEService, useSSEProgress hook, proxy mode in aiBridge (Wave 2)
 
 ### Phase 7: Application UI
 **Goal**: Complete application experience with project management, export, and configuration
@@ -149,6 +152,6 @@ From foundation to full creative tool: we start by establishing the infinite can
 | 3. Node Engine | 0/5 | Not started | - |
 | 4. AI Adapters | 0/6 | Not started | - |
 | 5. AI Execution Infrastructure | 3/3 | Complete    | 2026-07-01 |
-| 6. Backend Services | 0/0 | Not started | - |
+| 6. Backend Services | 0/2 | Not started | - |
 | 7. Application UI | 0/0 | Not started | - |
 | 8. Testing & Performance | 0/0 | Not started | - |
