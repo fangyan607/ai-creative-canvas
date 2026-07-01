@@ -882,27 +882,23 @@ Source: https://hono.dev/docs/getting-started/nodejs [CITED]
 | A1 | The `streamSSE` callback can store a reference to `stream.writeSSE` externally and keep the stream alive with an unresolved Promise, enabling `SseBroadcastManager` to broadcast from outside the callback. | SSE Broadcast Manager | Low — Alternative is to poll an in-memory event queue from within the callback. The stored-reference pattern is used in production Hono apps. |
 | A2 | The backend adapter `execute()` calls do not need the `onStoreImage` callback because the backend file service handles storage separately. | AI Proxy Route | Medium — If the adapter needs `onStoreImage` to return a valid `imageBlobId` (which AdapterResult requires), the backend must either (a) provide a dummy callback that stores to local disk, or (b) skip blob storage and use backend file service. The `imageBlobId` in `AdapterResult` is a string — it can be a backend file UUID even if not stored via the callback. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **How does the AI queue interact with the proxy mode?**
    - What we know: In direct mode, `aiQueueStore.ts` enqueues jobs and processes them serially per-provider. In proxy mode, the frontend bridge sends an HTTP POST to `/api/ai/generate` instead.
-   - What's unclear: Should the queue still exist on the frontend in proxy mode, or does the backend become the queue manager? If the frontend queue stays, it would queue HTTP requests rather than adapter executions.
-   - Recommendation: Keep the frontend queue. The proxy endpoint simply replaces the direct adapter call. The queue's rate limiting and serial execution per-provider remain valuable even with a backend proxy.
+   - RESOLVED: Keep the frontend queue. The proxy endpoint simply replaces the direct adapter call. The queue's rate limiting and serial execution per-provider remain valuable even with a backend proxy. Confirmed in Plan 06-02 Task 2: `aiBridge.ts` proxy path returns an async executor that calls `fetch('/api/ai/generate')`, leaving the frontend queue untouched.
 
 2. **How should the adapter's `onStoreImage` callback work in proxy mode?**
    - What we know: Adapters expect `onStoreImage(blob) => Promise<string>` which returns an imageBlobId. In direct mode, this stores to IndexedDB via `imageBlobStore`.
-   - What's unclear: In proxy mode, should the backend adapter write the image blob to disk directly and return the file UUID? Or should it return the blob in the SSE/JSON response for the frontend to store?
-   - Recommendation: In proxy mode, skip the `onStoreImage` callback. The backend adapter returns the blob as base64 in the done event's `result` object. The frontend SSE handler stores it locally (to IndexedDB) and updates the `imageBlobId`.
+   - RESOLVED: Backend adapter provides an `onStoreImage` callback that saves the blob to local disk (date-sharded `uploads/` directory) and returns the file UUID as `imageBlobId`. This keeps AdapterResult consistent across modes — the `imageBlobId` is always a storage reference, just backed by different stores. Confirmed in Plan 06-01 Task 3: `ai.ts` creates `onStoreImage` closure that calls `fs.writeFile` and stores metadata in `fileStore.fileMetadata`.
 
 3. **Should the frontend SSE connection be initialized at App mount or only when proxy mode is active?**
    - What we know: SSE connection stays alive for the page lifecycle (D-02).
-   - What's unclear: Whether to always connect SSE and just ignore events in direct mode, or to only connect when `VITE_AI_PROXY_MODE=proxy`.
-   - Recommendation: Only initialize SSE when proxy mode is active. Check `import.meta.env.VITE_AI_PROXY_MODE` at startup. In direct mode, the existing EventEmitter path from Phase 5 handles all progress updates.
+   - RESOLVED: Only initialize SSE when proxy mode is active. `initSSE()` in `useSSEProgress.ts` checks `import.meta.env.VITE_AI_PROXY_MODE === 'proxy'` before connecting; in direct mode it's a no-op (Plan 06-02 Task 2). The `useSSEProgress()` hook also guards on proxy mode. This means the existing Phase 5 EventEmitter path is completely untouched in direct mode.
 
 4. **How to handle the backend's tsconfig?**
    - What we know: Frontend uses Vite 8 with Rolldown. Backend runs on Node.js with `tsx`.
-   - What's unclear: Backend tsconfig needs different settings (no JSX, `moduleResolution: "bundler"` for workspace packages).
-   - Recommendation: Create a minimal `tsconfig.json` for `apps/backend/` extending a workspace root tsconfig if one exists, or standalone with `"module": "NodeNext"`, `"moduleResolution": "NodeNext"`, `"target": "ES2024"`.
+   - RESOLVED: Backend `tsconfig.json` extends `../../tsconfig.base.json` with `"jsx": "preserve"` override (Node.js backend has no JSX). `compilerOptions: { outDir: "./dist", rootDir: "./src" }`. Confirmed in Plan 06-01 Task 1 action specs. The base config provides `"moduleResolution": "bundler"` which works with `tsx` for development, while `tsc --noEmit` handles type checking.
 
 ## Environment Availability
 
