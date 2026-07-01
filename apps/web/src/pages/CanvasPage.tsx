@@ -21,7 +21,9 @@ import { StabilityAdapter } from '@ac-canvas/ai-core/adapters/stability.adapter'
 import { initProviderStore } from '../stores/providerStoreSingleton'
 import { CanvasWrapper } from '../components/CanvasWrapper'
 import { ProgressPanel } from '../components/ProgressPanel'
+import { ShortcutPanel } from '../components/ShortcutPanel'
 import { useAutoExecute } from '../hooks/useAutoExecute'
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
 import { useEngineStore } from '../stores/engineStore'
 import { initSSE, useSSEProgress } from '../services/useSSEProgress'
 import { useNodeGraphStore } from '../stores/nodeGraphStore'
@@ -118,6 +120,7 @@ function useProjectAutoSave(projectId: number | null) {
 
 export function CanvasPage() {
   const [projectId, setProjectId] = useState<number | null>(null)
+  const [shortcutOpen, setShortcutOpen] = useState(false)
 
   // Node editor state (fine-grained selectors per D-24)
   const focusMode = useNodeGraphStore(useShallow((s) => s.focusMode))
@@ -129,6 +132,49 @@ export function CanvasPage() {
   useProjectAutoSave(projectId)
   useAutoExecute()
   useSSEProgress()
+
+  // Keyboard shortcuts (D-17, D-18)
+  useKeyboardShortcuts([
+    {
+      id: 'shortcuts',
+      key: '?',
+      handler: () => setShortcutOpen(true),
+      group: 'app',
+      description: '显示键盘快捷键',
+    },
+    {
+      id: 'save',
+      key: 's',
+      ctrlKey: true,
+      handler: () => {
+        // Save is handled by useProjectAutoSave debounce — no manual trigger needed
+      },
+      group: 'app',
+      description: '保存项目',
+    },
+    {
+      id: 'execute',
+      key: 'Enter',
+      ctrlKey: true,
+      handler: () => {
+        // Reserved for future execution trigger (Phase 5)
+      },
+      group: 'app',
+      description: '执行工作流',
+    },
+    {
+      id: 'escape',
+      key: 'Escape',
+      handler: () => {
+        // Deselect / return to canvas mode
+        if (focusMode === 'nodes') {
+          setFocusMode('canvas')
+        }
+      },
+      group: 'canvas',
+      description: '返回画布模式',
+    },
+  ])
 
   const handleProjectIdChange = useCallback((id: number) => {
     setProjectId(id)
@@ -155,17 +201,6 @@ export function CanvasPage() {
 
     // Initialize SSE connection for proxy mode (no-op in direct mode)
     initSSE()
-  }, [])
-
-  // Reserve Ctrl+Enter for future execution trigger (Phase 5)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-        e.preventDefault()
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
 
   return (
@@ -270,6 +305,9 @@ export function CanvasPage() {
 
       {/* Execution progress panel — collapsible bottom panel */}
       <ProgressPanel />
+
+      {/* Keyboard shortcut discovery panel */}
+      <ShortcutPanel open={shortcutOpen} onOpenChange={setShortcutOpen} />
     </div>
   )
 }

@@ -3,6 +3,7 @@
 //
 // D-17: Centralized shortcut system with enable/disable, grouping, and
 // collision detection. Prevents firing when user is typing in input fields.
+// D-18: shortcutRegistry static array enables ShortcutPanel discovery.
 //
 // Usage:
 //   useKeyboardShortcuts([
@@ -39,6 +40,32 @@ export interface ShortcutAction {
   /** Whether this shortcut is currently active (default true). */
   enabled?: boolean
 }
+
+/**
+ * Simplified shortcut definition for the registry (no handler).
+ * Used by ShortcutPanel for display purposes only.
+ */
+export interface ShortcutDefinition {
+  id: string
+  key: string
+  ctrlKey?: boolean
+  metaKey?: boolean
+  shiftKey?: boolean
+  altKey?: boolean
+  group: string
+  description: string
+}
+
+// ---------------------------------------------------------------------------
+// Shortcut Registry — static array for discovery by ShortcutPanel
+// ---------------------------------------------------------------------------
+
+/**
+ * Static registry that collects all registered shortcuts for display.
+ * useKeyboardShortcuts pushes shortcuts here on mount and removes on unmount.
+ * ShortcutPanel reads from this array to render the keyboard shortcuts list.
+ */
+export const shortcutRegistry: ShortcutDefinition[] = []
 
 // ---------------------------------------------------------------------------
 // Input element tag names to skip when handling keyboard events
@@ -77,6 +104,7 @@ function normalizeKey(e: KeyboardEvent): string {
 
 /**
  * Register keyboard shortcuts for the lifetime of the component.
+ * Pushes to shortcutRegistry on mount for discovery, removes on unmount.
  * Automatically cleans up listeners on unmount.
  */
 export function useKeyboardShortcuts(shortcuts: ShortcutAction[]): void {
@@ -93,6 +121,24 @@ export function useKeyboardShortcuts(shortcuts: ShortcutAction[]): void {
         altKey: s.altKey ?? false,
       } as KeyboardEvent)
       shortcutMap.set(key, s)
+    }
+
+    // Register in the static discovery registry
+    const registeredIds = new Set<string>()
+    for (const s of shortcuts) {
+      if (!registeredIds.has(s.id)) {
+        registeredIds.add(s.id)
+        shortcutRegistry.push({
+          id: s.id,
+          key: s.key,
+          ctrlKey: s.ctrlKey,
+          metaKey: s.metaKey,
+          shiftKey: s.shiftKey,
+          altKey: s.altKey,
+          group: s.group,
+          description: s.description,
+        })
+      }
     }
 
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -114,6 +160,11 @@ export function useKeyboardShortcuts(shortcuts: ShortcutAction[]): void {
     window.addEventListener('keydown', handleKeyDown)
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
+      // Remove this component's shortcuts from the registry
+      for (const s of shortcuts) {
+        const idx = shortcutRegistry.findIndex((r) => r.id === s.id)
+        if (idx !== -1) shortcutRegistry.splice(idx, 1)
+      }
     }
   }, [shortcuts])
 }

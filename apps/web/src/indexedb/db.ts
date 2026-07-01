@@ -22,6 +22,18 @@ export interface ProviderConfigRecord {
   updatedAt: number
 }
 
+// D-16: Prompt template record for user-created templates persisted in IndexedDB
+export interface PromptTemplateRecord {
+  id?: number
+  name: string
+  description: string
+  template: string
+  variables: string  // JSON string of string[]
+  tags: string       // JSON string of string[]
+  createdAt: Date
+  updatedAt: Date
+}
+
 // D-14: Single-table design with auto-increment id
 // Schema: ++id = auto-increment primary key
 //         &name = unique index on name
@@ -29,6 +41,7 @@ export interface ProviderConfigRecord {
 export class AICreativeCanvasDB extends Dexie {
   projects!: EntityTable<ProjectRecord, 'id'>
   providerConfigs!: EntityTable<ProviderConfigRecord, 'providerId'>
+  promptTemplates!: EntityTable<PromptTemplateRecord, 'id'>
 
   constructor() {
     super('AICreativeCanvas')
@@ -39,6 +52,12 @@ export class AICreativeCanvasDB extends Dexie {
     this.version(2).stores({
       projects: '++id, &name, createdAt, updatedAt',
       providerConfigs: '&providerId, updatedAt',  // &providerId = unique primary key
+    })
+    // D-16: Version 3 adds promptTemplates table for user-created templates
+    this.version(3).stores({
+      projects: '++id, &name, createdAt, updatedAt',
+      providerConfigs: '&providerId, updatedAt',
+      promptTemplates: '++id, name, updatedAt',
     })
   }
 }

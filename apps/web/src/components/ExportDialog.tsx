@@ -25,7 +25,7 @@ import {
   Select,
   SelectTrigger,
   SelectValue,
-  SelectPopup,
+  SelectContent,
   SelectItem,
 } from '@/components/ui/select'
 
@@ -114,15 +114,17 @@ export function ExportDialog({ open, onOpenChange }: ExportDialogProps) {
             </label>
             <Select
               value={format}
-              onValueChange={(v: 'png' | 'jpg') => setFormat(v)}
+              onValueChange={(v: string | null) => {
+                if (v === 'png' || v === 'jpg') setFormat(v)
+              }}
             >
               <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
-              <SelectPopup>
+              <SelectContent>
                 <SelectItem value="png">PNG</SelectItem>
                 <SelectItem value="jpg">JPG</SelectItem>
-              </SelectPopup>
+              </SelectContent>
             </Select>
           </div>
 
@@ -133,18 +135,18 @@ export function ExportDialog({ open, onOpenChange }: ExportDialogProps) {
             </label>
             <Select
               value={String(scale)}
-              onValueChange={(v: string) =>
-                setScale(Number(v) as 1 | 2 | 3)
-              }
+              onValueChange={(v: string | null) => {
+                if (v) setScale(Number(v) as 1 | 2 | 3)
+              }}
             >
               <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
-              <SelectPopup>
+              <SelectContent>
                 <SelectItem value="1">1x</SelectItem>
                 <SelectItem value="2">2x</SelectItem>
                 <SelectItem value="3">3x</SelectItem>
-              </SelectPopup>
+              </SelectContent>
             </Select>
           </div>
 
@@ -155,17 +157,17 @@ export function ExportDialog({ open, onOpenChange }: ExportDialogProps) {
             </label>
             <Select
               value={background}
-              onValueChange={(v: 'transparent' | 'white') =>
-                setBackground(v)
-              }
+              onValueChange={(v: string | null) => {
+                if (v === 'transparent' || v === 'white') setBackground(v)
+              }}
             >
               <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
-              <SelectPopup>
+              <SelectContent>
                 <SelectItem value="transparent">透明</SelectItem>
                 <SelectItem value="white">白色</SelectItem>
-              </SelectPopup>
+              </SelectContent>
             </Select>
           </div>
         </div>
