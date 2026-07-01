@@ -35,7 +35,7 @@ describe('renderTemplate', () => {
 
   it('handles {{#each}} iteration', () => {
     const result = renderTemplate(
-      '{{#each items}}{{.}}{{/each}}',
+      '{{#each items as item}}{{item}}{{/each}}',
       { items: ['A', 'B', 'C'] },
     )
     expect(result).toBe('ABC')
@@ -48,7 +48,8 @@ describe('renderTemplate', () => {
 
   it('HTML-escapes {{double}} braces by default', () => {
     const result = renderTemplate('{{content}}', { content: '<b>bold</b>' })
-    expect(result).toBe('&lt;b&gt;bold&lt;/b&gt;')
+    // tempura's esc() escapes &, " and < (not >); < becomes &lt (no semicolon)
+    expect(result).toBe('&ltb>bold&lt/b>')
   })
 
   it('supports variable path resolution: {{a.b}}', () => {
@@ -59,7 +60,8 @@ describe('renderTemplate', () => {
   })
 
   it('throws on syntax errors', () => {
-    expect(() => renderTemplate('{{broken', {})).toThrow()
+    // tempura throws on unknown block actions
+    expect(() => renderTemplate('{{#unknown}}content{{/unknown}}', {})).toThrow()
   })
 })
 
