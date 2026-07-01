@@ -212,7 +212,8 @@ export class NodeEngine {
             inputs[edge.sourceHandle] = nodeOutputs.get(edge.source)
           }
 
-          const output = await executor(node.data as unknown as Record<string, unknown>, inputs)
+          const enrichedData = { ...(node.data as unknown as Record<string, unknown>), __nodeId: node.id }
+          const output = await executor(enrichedData, inputs)
           nodeOutputs.set(nodeId, output)
           this.nodeStatus.set(nodeId, 'done')
           executedNodes.push(nodeId)

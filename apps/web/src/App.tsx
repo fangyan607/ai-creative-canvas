@@ -1,3 +1,8 @@
+import { AdapterRegistry } from '@ac-canvas/ai-core'
+import { MockAdapter } from '@ac-canvas/ai-core/adapters/mock.adapter'
+import { OpenAiAdapter } from '@ac-canvas/ai-core/adapters/openai.adapter'
+import { StabilityAdapter } from '@ac-canvas/ai-core/adapters/stability.adapter'
+import { initProviderStore, isProviderStoreReady } from './stores/providerStoreSingleton'
 import { useState, useCallback, useEffect } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { CanvasWrapper } from './components/CanvasWrapper'
@@ -66,6 +71,19 @@ function App() {
   const isExecuting = useEngineStore((s) => s.isExecuting)
   const nodeErrors = useEngineStore(useShallow((s) => Object.keys(s.nodeErrors).length > 0 ? s.nodeErrors : {}))
   const errorCount = Object.keys(nodeErrors).length
+
+  // Bootstrap: register AI adapters and initialize ProviderStore (Phase 5)
+  useEffect(() => {
+    const registry = AdapterRegistry.getInstance()
+    registry.register(MockAdapter)
+    registry.register(OpenAiAdapter)
+    registry.register(StabilityAdapter)
+    console.log('[Phase 5] Adapters registered:', registry.getAllProviders().map(p => p.providerId))
+
+    // Initialize ProviderStore with Dexie backend
+    initProviderStore()
+    console.log('[Phase 5] ProviderStore initialized')
+  }, [])
 
   // Reserve Ctrl+Enter for future execution trigger (Phase 5)
   useEffect(() => {

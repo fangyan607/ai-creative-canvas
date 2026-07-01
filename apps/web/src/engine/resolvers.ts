@@ -11,6 +11,9 @@
 
 import type { NodeType } from '@ac-canvas/shared'
 import type { Executor, ExecutorResolver, ExecutorOutput } from './types'
+import { useAIQueueStore } from '../stores/aiQueueStore'
+import { createAiExecutor, resolveProviderId } from './aiBridge'
+import { getProviderStore } from '../stores/providerStoreSingleton'
 
 /**
  * Create default stub resolvers for all node types.
@@ -26,23 +29,35 @@ export function createDefaultResolvers(): ExecutorResolver {
     return { prompt: (nodeData as any).prompt ?? '' }
   }) as Executor)
 
-  resolvers.set('text-to-image', ((nodeData, inputs) => {
-    // Stub: returns placeholder image metadata
-    return {
-      generatedImageId: 'stub-image-' + crypto.randomUUID().slice(0, 8),
-      width: (nodeData as any).width ?? 1024,
-      height: (nodeData as any).height ?? 1024,
-      isStub: true,
-    }
+  resolvers.set('text-to-image', (async (nodeData, inputs) => {
+    const queueStore = useAIQueueStore.getState()
+    const providerId = resolveProviderId(nodeData, 'text-to-image')
+    const store = getProviderStore()
+    const executor = createAiExecutor(providerId, { providerStore: store })
+
+    // NodeEngine.execute() now injects __nodeId, so nodeData.__nodeId is always present
+    return queueStore.enqueue(providerId, {
+      nodeId: (nodeData as any).__nodeId as string,
+      providerId,
+      executor,
+      nodeData,
+      inputs,
+    })
   }) as Executor)
 
-  resolvers.set('style', ((nodeData, inputs) => {
-    // Stub: passes through input info, records style preset
-    return {
-      styledImageId: 'stub-styled-' + crypto.randomUUID().slice(0, 8),
-      stylePreset: (nodeData as any).stylePreset ?? 'none',
-      isStub: true,
-    }
+  resolvers.set('style', (async (nodeData, inputs) => {
+    const queueStore = useAIQueueStore.getState()
+    const providerId = resolveProviderId(nodeData, 'style')
+    const store = getProviderStore()
+    const executor = createAiExecutor(providerId, { providerStore: store })
+
+    return queueStore.enqueue(providerId, {
+      nodeId: (nodeData as any).__nodeId as string,
+      providerId,
+      executor,
+      nodeData,
+      inputs,
+    })
   }) as Executor)
 
   resolvers.set('merge', ((nodeData, inputs) => {
