@@ -27,6 +27,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@ac-canvas/ai-core':
+        specifier: workspace:*
+        version: link:../../packages/ai-core
       '@ac-canvas/excalidraw':
         specifier: workspace:*
         version: link:../../packages/excalidraw
