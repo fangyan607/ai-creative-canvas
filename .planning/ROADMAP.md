@@ -83,7 +83,14 @@ From foundation to full creative tool: we start by establishing the infinite can
   3. User can use provided prompt templates to construct effective generation prompts with variable substitution
   4. Changing between AI providers does not require code changes or restarts (adapter interface is stable)
   5. While offline or during development, MockAdapter returns realistic test images without any API call
-**Plans**: TBD
+**Plans**: 6 plans in 2 waves
+**Plan list:**
+- [ ] 04-01-PLAN.md — Foundation: packages/ai-core package, types, AiAdapter abstract class, AdapterRegistry, contract tests (Wave 1)
+- [ ] 04-02-PLAN.md — MockAdapter: offline canvas-rendered image generator with dual-mode fallback (Wave 2)
+- [ ] 04-03-PLAN.md — OpenAI DALL-E 3 adapter: direct fetch() with error sanitization (Wave 2)
+- [ ] 04-04-PLAN.md — Stability.ai adapter: dual v1/v2beta API dispatch with image-to-image (Wave 2)
+- [ ] 04-05-PLAN.md — ProviderStore: BYOK config with Web Crypto encrypted IndexedDB storage (Wave 2)
+- [ ] 04-06-PLAN.md — Template engine + prompt templates: tempura-based rendering with 4-source variable resolution (Wave 2)
 
 ### Phase 5: AI Execution Infrastructure
 **Goal**: AI tasks flow from the node engine through a managed queue with real-time progress streaming back to the canvas
@@ -137,7 +144,7 @@ From foundation to full creative tool: we start by establishing the infinite can
 | 1. Core Canvas | 6/6 | Complete    | 2026-06-29 |
 | 2. Node Editor Interface | 0/5 | Not started | - |
 | 3. Node Engine | 0/5 | Not started | - |
-| 4. AI Adapters | 0/0 | Not started | - |
+| 4. AI Adapters | 0/6 | Not started | - |
 | 5. AI Execution Infrastructure | 0/0 | Not started | - |
 | 6. Backend Services | 0/0 | Not started | - |
 | 7. Application UI | 0/0 | Not started | - |
