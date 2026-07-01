@@ -173,26 +173,24 @@ export function TabbedSidebar() {
         {TABS.map((tab) => {
           const isActive = tab.id === activeTab
           const Icon = tab.icon
-          const button = (
-            <button
-              key={tab.id}
-              onClick={() => handleTabClick(tab.id)}
-              className={`
-                flex items-center justify-center w-9 h-9 rounded-md transition-colors
-                ${
-                  isActive
-                    ? 'bg-accent text-accent-foreground'
-                    : 'text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent'
-                }
-              `}
-            >
-              <Icon size={18} />
-            </button>
-          )
 
           return (
             <Tooltip key={tab.id}>
-              <TooltipTrigger asChild>{button}</TooltipTrigger>
+              <TooltipTrigger>
+                <button
+                  onClick={() => handleTabClick(tab.id)}
+                  className={`
+                    flex items-center justify-center w-9 h-9 rounded-md transition-colors
+                    ${
+                      isActive
+                        ? 'bg-accent text-accent-foreground'
+                        : 'text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent'
+                    }
+                  `}
+                >
+                  <Icon size={18} />
+                </button>
+              </TooltipTrigger>
               <TooltipContent side="right" sideOffset={8}>
                 {tab.label}
               </TooltipContent>
@@ -205,7 +203,7 @@ export function TabbedSidebar() {
 
         {/* Expand toggle */}
         <Tooltip>
-          <TooltipTrigger asChild>
+          <TooltipTrigger>
             <button
               onClick={toggleSidebar}
               className="flex items-center justify-center w-9 h-9 rounded-md text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors mb-2"

@@ -15,6 +15,8 @@ import {
 } from 'lucide-react'
 import { type NodeDataUnion, type NodeParamDefinition, type NodeType, nodeTypeDefinitions } from '@ac-canvas/shared'
 import { useNodeGraphStore } from '../../../apps/web/src/stores/nodeGraphStore'
+import { Slider } from '../../../apps/web/src/components/ui/slider'
+import { Input } from '../../../apps/web/src/components/ui/input'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -237,12 +239,22 @@ function NumberField({ param, value, onChange }: PropertyFieldProps) {
       <label className="text-xs font-semibold text-[var(--color-muted-foreground)]">
         {param.label}
       </label>
-      <input
-        type="number"
-        className="w-full text-sm p-2 border border-[var(--color-hairline)] rounded-[var(--radius-md)] focus:outline-none focus:ring-1 focus:ring-[var(--color-ring)]"
-        value={(value as number) ?? 0}
-        onChange={handleChange}
-      />
+      <div className="flex items-center gap-2">
+        <Slider
+          value={[(value as number) ?? 0]}
+          onValueChange={([v]) => onChange(v)}
+          min={param.min ?? 0}
+          max={param.max ?? 100}
+          step={param.step ?? 1}
+          className="flex-1"
+        />
+        <Input
+          type="number"
+          value={(value as number) ?? 0}
+          onChange={handleChange}
+          className="w-16 h-7 text-xs"
+        />
+      </div>
     </div>
   )
 }

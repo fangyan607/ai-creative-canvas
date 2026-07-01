@@ -36,6 +36,12 @@ export interface NodeParamDefinition {
   type: 'text' | 'number' | 'select' | 'file'
   defaultValue: unknown
   options?: string[]
+  /** Minimum value for number inputs (used by Slider). */
+  min?: number
+  /** Maximum value for number inputs (used by Slider). */
+  max?: number
+  /** Step increment for number inputs (used by Slider). */
+  step?: number
 }
 
 // ---------------------------------------------------------------------------
@@ -185,12 +191,18 @@ export const nodeTypeDefinitions: NodeTypeDefinition[] = [
         label: 'Width',
         type: 'number',
         defaultValue: 1024,
+        min: 256,
+        max: 2048,
+        step: 64,
       },
       {
         key: 'height',
         label: 'Height',
         type: 'number',
         defaultValue: 1024,
+        min: 256,
+        max: 2048,
+        step: 64,
       },
       {
         key: 'model',
@@ -204,6 +216,9 @@ export const nodeTypeDefinitions: NodeTypeDefinition[] = [
         label: 'Seed',
         type: 'number',
         defaultValue: -1,
+        min: -1,
+        max: 2147483647,
+        step: 1,
       },
     ],
   },
