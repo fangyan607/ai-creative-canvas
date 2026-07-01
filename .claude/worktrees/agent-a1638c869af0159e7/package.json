@@ -1,0 +1,24 @@
+{
+  "name": "ai-creative-canvas",
+  "private": true,
+  "packageManager": "pnpm@11.8.0",
+  "scripts": {
+    "dev": "pnpm --filter @ac-canvas/web dev",
+    "build": "pnpm --filter @ac-canvas/web build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "devDependencies": {
+    "sass": "^1.101.0",
+    "typescript": "^5.0.2"
+  },
+  "dependencies": {
+    "@base-ui/react": "^1.6.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "1.1.1",
+    "tailwind-merge": "^3.6.0"
+  }
+}
