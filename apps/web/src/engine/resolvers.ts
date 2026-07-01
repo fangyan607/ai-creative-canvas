@@ -16,6 +16,28 @@ import { createAiExecutor, resolveProviderId } from './aiBridge'
 import { getProviderStore } from '../stores/providerStoreSingleton'
 
 /**
+ * Create a queue-aware AI resolver for text-to-image and style nodes.
+ * Shared helper to avoid duplicating the enqueue + bridge wiring (WR-04).
+ */
+function createAiResolver(nodeType: 'text-to-image' | 'style'): Executor {
+  return (async (nodeData, inputs) => {
+    const queueStore = useAIQueueStore.getState()
+    const providerId = resolveProviderId(nodeData, nodeType)
+    const store = getProviderStore()
+    const executor = createAiExecutor(providerId, { providerStore: store })
+
+    // NodeEngine.execute() now injects __nodeId, so nodeData.__nodeId is always present
+    return queueStore.enqueue(providerId, {
+      nodeId: (nodeData as any).__nodeId as string,
+      providerId,
+      executor,
+      nodeData,
+      inputs,
+    })
+  }) as unknown as Executor
+}
+
+/**
  * Create default stub resolvers for all node types.
  * Each executor returns placeholder data appropriate to the node type.
  * Group nodes have no executor (they pass through, meaning they're skipped
@@ -29,36 +51,8 @@ export function createDefaultResolvers(): ExecutorResolver {
     return { prompt: (nodeData as any).prompt ?? '' }
   }) as Executor)
 
-  resolvers.set('text-to-image', (async (nodeData, inputs) => {
-    const queueStore = useAIQueueStore.getState()
-    const providerId = resolveProviderId(nodeData, 'text-to-image')
-    const store = getProviderStore()
-    const executor = createAiExecutor(providerId, { providerStore: store })
-
-    // NodeEngine.execute() now injects __nodeId, so nodeData.__nodeId is always present
-    return queueStore.enqueue(providerId, {
-      nodeId: (nodeData as any).__nodeId as string,
-      providerId,
-      executor,
-      nodeData,
-      inputs,
-    })
-  }) as Executor)
-
-  resolvers.set('style', (async (nodeData, inputs) => {
-    const queueStore = useAIQueueStore.getState()
-    const providerId = resolveProviderId(nodeData, 'style')
-    const store = getProviderStore()
-    const executor = createAiExecutor(providerId, { providerStore: store })
-
-    return queueStore.enqueue(providerId, {
-      nodeId: (nodeData as any).__nodeId as string,
-      providerId,
-      executor,
-      nodeData,
-      inputs,
-    })
-  }) as Executor)
+  resolvers.set('text-to-image', createAiResolver('text-to-image'))
+  resolvers.set('style', createAiResolver('style'))
 
   resolvers.set('merge', ((nodeData, inputs) => {
     // Stub: combines input references

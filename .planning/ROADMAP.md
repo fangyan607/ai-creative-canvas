@@ -10,7 +10,7 @@ From foundation to full creative tool: we start by establishing the infinite can
 - [ ] **Phase 2: Node Editor Interface** - React Flow integration with 5 node types, drag-connect, parameter panel, and graph serialization
 - [ ] **Phase 3: Node Engine** - Topological sort execution, parallel/incremental DAG execution, node undo/redo, and sub-group support
 - [ ] **Phase 4: AI Adapters** - OpenAI and Stability.ai adapters, MockAdapter, BYOK mode, and Prompt builder system
-- [ ] **Phase 5: AI Execution Infrastructure** - Request queue with rate limiting, EventEmitter progress streaming, and node-engine-to-AI bridge
+- [x] **Phase 5: AI Execution Infrastructure** - Request queue with rate limiting, EventEmitter progress streaming, and node-engine-to-AI bridge (completed 2026-07-01)
 - [ ] **Phase 6: Backend Services** - Hono-based AI proxy API and file upload/download service
 - [ ] **Phase 7: Application UI** - Toolbar/sidebar/panel shell, canvas export, project management page, and settings page
 - [ ] **Phase 8: Testing & Performance** - Node engine unit tests, AI adapter mock tests, core E2E flow tests
@@ -102,9 +102,9 @@ From foundation to full creative tool: we start by establishing the infinite can
   3. TextToImageNode and StyleNode correctly pass their parameters through the engine bridge to AI adapters and receive results back (no auto-placement per D-06; PreviewNode Apply controls canvas placement)
 **Plans**: 3 plans in 3 waves
 **Plan list:**
-- [ ] 05-01-PLAN.md — Rate limiter utility (sliding window, hardcoded defaults) + ImageBlobStore (in-memory MVP) (Wave 1)
-- [ ] 05-02-PLAN.md — AIQueueStore (per-provider queues, rate limiter integration, serial execution loop) + EngineStore queue state extension (Wave 2)
-- [ ] 05-03-PLAN.md — Engine-AI bridge factory (createAiExecutor) + ProviderStore singleton + Dexie backend + resolver swap + App.tsx bootstrap (Wave 3)
+- [x] 05-01-PLAN.md — Rate limiter utility (sliding window, hardcoded defaults) + ImageBlobStore (in-memory MVP) (Wave 1)
+- [x] 05-02-PLAN.md — AIQueueStore (per-provider queues, rate limiter integration, serial execution loop) + EngineStore queue state extension (Wave 2)
+- [x] 05-03-PLAN.md — Engine-AI bridge factory (createAiExecutor) + ProviderStore singleton + Dexie backend + resolver swap + App.tsx bootstrap (Wave 3)
 
 ### Phase 6: Backend Services
 **Goal**: Backend proxies AI requests to hide client-side API keys and handles file storage
@@ -148,7 +148,7 @@ From foundation to full creative tool: we start by establishing the infinite can
 | 2. Node Editor Interface | 0/5 | Not started | - |
 | 3. Node Engine | 0/5 | Not started | - |
 | 4. AI Adapters | 0/6 | Not started | - |
-| 5. AI Execution Infrastructure | 0/3 | Not started | - |
+| 5. AI Execution Infrastructure | 3/3 | Complete   | 2026-07-01 |
 | 6. Backend Services | 0/0 | Not started | - |
 | 7. Application UI | 0/0 | Not started | - |
 | 8. Testing & Performance | 0/0 | Not started | - |

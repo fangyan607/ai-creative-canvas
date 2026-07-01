@@ -87,6 +87,10 @@ export interface AIQueueStoreState {
 // Store
 // ---------------------------------------------------------------------------
 
+// Safety limit: max iterations per processQueue call to prevent
+// infinite loops (e.g., if waitMs is 0 due to clock edge case, WR-02).
+const MAX_ITERATIONS = 100
+
 export const useAIQueueStore = create<AIQueueStoreState>()(
   immer((set, get) => {
     // Internal: map jobId -> { resolve, reject } for promise-based enqueue
@@ -113,20 +117,32 @@ export const useAIQueueStore = create<AIQueueStoreState>()(
             state.queues[providerId].push(fullJob)
           })
 
-          // Note: processQueue is NOT auto-started here. The caller (e.g. AI Bridge
-          // or NodeEngine) calls processQueue(providerId) after enqueueing.
-          // This keeps the queue state observable for testing and avoids
-          // race conditions between enqueue and processing.
+          // Auto-start processQueue if not already running for this provider.
+          // This ensures jobs execute without requiring manual processQueue() calls
+          // from resolvers. The processing flag prevents concurrent loops.
+          const st = get()
+          if (!st.processing[providerId]) {
+            queueMicrotask(() => {
+              get().processQueue(providerId)
+            })
+          }
         })
       },
 
       processQueue: async (providerId) => {
+        if (get().processing[providerId]) {
+          // Already processing — don't start a second loop (WR-01).
+          return
+        }
+
         set((state) => {
           state.processing[providerId] = true
         })
 
         try {
-          while (true) {
+          let iterations = 0
+          while (iterations < MAX_ITERATIONS) {
+            iterations++
             const currentState = get()
             const queue = currentState.queues[providerId] ?? []
             if (queue.length === 0) break

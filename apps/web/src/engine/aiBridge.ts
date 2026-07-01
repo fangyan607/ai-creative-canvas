@@ -51,7 +51,9 @@ export function createAiExecutor(
 
     // Step 2: Read API config from ProviderStore (Phase 4 BYOK)
     const apiKey = await providerStore.getApiKey(providerId)
-    const defaultBaseUrl = new AdapterClass().defaultBaseUrl
+    // Read defaultBaseUrl from a minimal instance (same pattern as registry.ts
+    // register() and getAllProviders() which both use no-arg construction).
+    const defaultBaseUrl = new AdapterClass({}).defaultBaseUrl
     const baseUrl = await providerStore.getBaseUrl(providerId, defaultBaseUrl)
 
     // Step 3: Build prompt via TemplateEngine
