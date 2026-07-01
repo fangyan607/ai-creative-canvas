@@ -31,12 +31,13 @@ vi.mock('@ac-canvas/excalidraw', () => ({
 vi.mock('../../stores/projectStore', () => ({
   useProjectStore: vi.fn((selector) => {
     const state = {
-      projectName: '无标题项目',
+      currentProjectName: '无标题项目',
+      currentProjectId: null,
       isSaving: false,
       setProjectName: vi.fn(),
-      setIsSaving: vi.fn(),
-      projectId: null,
       setProjectId: vi.fn(),
+      setIsSaving: vi.fn(),
+      setCurrentProject: vi.fn(),
     }
     return selector ? selector(state) : state
   }),
