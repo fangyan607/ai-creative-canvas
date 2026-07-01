@@ -22,6 +22,7 @@ import type { ExecutionStatus } from '@ac-canvas/shared'
 export interface EngineSerializedState {
   nodeStatus: Record<string, ExecutionStatus>
   nodeErrors: Record<string, string>
+  // queuedNodeIds intentionally excluded — queue state is transient, not persisted
 }
 
 // ---------------------------------------------------------------------------
@@ -48,6 +49,11 @@ export interface EngineStoreState {
   /** Reset all execution state. */
   clearAll: () => void
 
+  // Queue state (transient — not persisted to history)
+  /** IDs of nodes currently queued (waiting for rate limit or before execution). */
+  queuedNodeIds: string[]
+  setQueuedNodeIds: (ids: string[]) => void
+
   // Serialization (D-10: HistoryStore integration)
   serialize: () => EngineSerializedState
   loadSerialized: (state: EngineSerializedState) => void
@@ -63,6 +69,7 @@ export const useEngineStore = create<EngineStoreState>()(
     nodeErrors: {},
     lastExecutedAt: null,
     isExecuting: false,
+    queuedNodeIds: [],
 
     setNodeStatus: (id, status) =>
       set((state) => {
@@ -84,6 +91,11 @@ export const useEngineStore = create<EngineStoreState>()(
         state.isExecuting = executing
       }),
 
+    setQueuedNodeIds: (ids) =>
+      set((state) => {
+        state.queuedNodeIds = ids
+      }),
+
     markAllDirty: () =>
       set((state) => {
         for (const id of Object.keys(state.nodeStatus)) {
@@ -97,6 +109,7 @@ export const useEngineStore = create<EngineStoreState>()(
         state.nodeErrors = {}
         state.lastExecutedAt = null
         state.isExecuting = false
+        state.queuedNodeIds = []
       }),
 
     serialize: () => {

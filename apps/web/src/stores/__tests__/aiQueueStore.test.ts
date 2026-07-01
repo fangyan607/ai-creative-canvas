@@ -113,11 +113,17 @@ describe('AIQueueStore', () => {
     const executor1 = createMockExecutor({ result: 'first' })
     const executor2 = createMockExecutor({ result: 'second' })
 
+    // Add nodes to graph so existence check passes
+    useNodeGraphStore.getState().addNode('textToImage', { x: 0, y: 0 })
+    useNodeGraphStore.getState().addNode('textToImage', { x: 100, y: 0 })
+    const nodeId1 = useNodeGraphStore.getState().nodes[0].id
+    const nodeId2 = useNodeGraphStore.getState().nodes[1].id
+
     useAIQueueStore.getState().enqueue('mock', {
-      nodeId: 'node-1', executor: executor1, nodeData: {}, inputs: {},
+      nodeId: nodeId1, executor: executor1, nodeData: {}, inputs: {},
     })
     useAIQueueStore.getState().enqueue('mock', {
-      nodeId: 'node-2', executor: executor2, nodeData: {}, inputs: {},
+      nodeId: nodeId2, executor: executor2, nodeData: {}, inputs: {},
     })
 
     await useAIQueueStore.getState().processQueue('mock')
@@ -146,10 +152,14 @@ describe('AIQueueStore', () => {
       .mockReturnValueOnce({ allowed: false, waitMs: 100 })
       .mockReturnValue({ allowed: true, waitMs: 0 })
 
+    // Add node to graph so existence check passes
+    useNodeGraphStore.getState().addNode('textToImage', { x: 0, y: 0 })
+    const nodeId = useNodeGraphStore.getState().nodes[0].id
+
     vi.useFakeTimers()
     const executor = createMockExecutor()
     silence(useAIQueueStore.getState().enqueue('openai', {
-      nodeId: 'node-1',
+      nodeId,
       executor,
       nodeData: {},
       inputs: {},

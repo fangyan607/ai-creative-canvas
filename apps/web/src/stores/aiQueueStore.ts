@@ -149,6 +149,21 @@ export const useAIQueueStore = create<AIQueueStoreState>()(
               s.queues[providerId] = queue.slice(1)
             })
 
+            // Node existence verification (Pitfall 3 mitigation — prevent stale
+            // status updates on nodes deleted while queued). If the node no longer
+            // exists in the graph, reject the pending promise silently and skip.
+            const nodeExists = useNodeGraphStore.getState().nodes.some(
+              (n) => n.id === job.nodeId,
+            )
+            if (!nodeExists) {
+              const p = pending.get(job.id)
+              if (p) {
+                p.reject(new Error('Node deleted'))
+                pending.delete(job.id)
+              }
+              continue
+            }
+
             // Set node status to executing
             useEngineStore.getState().setNodeStatus(job.nodeId, 'executing')
 
