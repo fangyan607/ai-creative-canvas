@@ -4,6 +4,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { MockAdapter } from './mock.adapter'
+import { runAdapterContractTests } from './base.test'
 import type { AdapterResult } from '../interfaces/types'
 
 // ---------------------------------------------------------------------------
@@ -24,6 +25,11 @@ describe('MockAdapter', () => {
   beforeEach(() => {
     adapter = createAdapter()
   })
+
+  // -------------------------------------------------------------------------
+  // Shared contract tests (from base.test.ts)
+  // -------------------------------------------------------------------------
+  runAdapterContractTests(new MockAdapter())
 
   // -------------------------------------------------------------------------
   // Static metadata (D-06)
