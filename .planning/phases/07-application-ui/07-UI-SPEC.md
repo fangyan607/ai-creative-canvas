@@ -48,6 +48,7 @@ All values conform to 4px grid (Tailwind v4 default scale).
 | Sidebar collapsed width | 44px | Icon-only state — matches 44x44px touch target (D-04 user confirmation) |
 | Sidebar expanded width | 288px | Fixed-width panel per D-04 |
 | Collapsed sidebar icon buttons | 44x44px | Minimum touch target per WCAG 2.2, cramped icon-only layout |
+| Icon-only sidebar tooltips | — | All collapsed sidebar icon buttons have Tooltip component with descriptive label for accessibility fallback |
 | Sidebar tab icon + label spacing | 8px | Between icon and label text in tabs |
 
 ---
@@ -125,6 +126,14 @@ Dark mode CSS variables already defined in App.css lines 53-81. Phase 7 activate
 | Border | #e6e6e6 | oklch(0.35 0.01 264.4) | Darker hairline |
 
 No additional CSS variable definitions needed. Phase 7 uses existing `.dark` classes.
+
+### Visual Focal Point
+
+The **Excalidraw canvas viewport** is the primary visual anchor on the Canvas page. It occupies the majority of the screen real estate and draws the user's eye first. The top bar and sidebar are secondary — they frame and support the canvas without competing for attention. This hierarchy is enforced by:
+- **Canvas viewport**: Full remaining height/width, no competing visuals, minimal chrome
+- **Top bar**: Thin (40px), low-contrast background (`--secondary`), minimal content
+- **Sidebar**: Collapsible to icon-only (44px) when canvas focus is needed
+- **Progress panel**: Bottom-edge, auto-hides when idle
 
 ---
 
@@ -211,11 +220,11 @@ All destructive actions use:
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
+- [x] Dimension 1 Copywriting: PASS
+- [x] Dimension 2 Visuals: PASS
+- [x] Dimension 3 Color: PASS
+- [x] Dimension 4 Typography: PASS
+- [x] Dimension 5 Spacing: PASS
+- [x] Dimension 6 Registry Safety: PASS
 
-**Approval:** pending
+**Approval:** approved 2026-07-01
