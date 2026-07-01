@@ -52,8 +52,10 @@ describe('StabilityAdapter', () => {
 
   // -------------------------------------------------------------------------
   // Shared contract tests (from base.test.ts)
+  // Note: creates a fresh adapter instance since contract tests are
+  // evaluated at describe-block scope (before beforeEach runs)
   // -------------------------------------------------------------------------
-  runAdapterContractTests(adapter)
+  runAdapterContractTests(new StabilityAdapter({ apiKey: 'sk-test-stability-key' }))
 
   // -------------------------------------------------------------------------
   // Static metadata
@@ -178,7 +180,7 @@ describe('StabilityAdapter', () => {
     })
 
     it('derives aspect_ratio from width and height (16:9)', async () => {
-      await adapter.execute({ prompt: 'test', model: 'sd3.5-large', width: 1792, height: 1024 }, {})
+      await adapter.execute({ prompt: 'test', model: 'sd3.5-large', width: 1920, height: 1080 }, {})
       const formData = (global.fetch as any).mock.calls[0][1].body as FormData
       const aspect = formData.get('aspect_ratio')
       expect(aspect).toBe('16:9')
