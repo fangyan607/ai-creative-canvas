@@ -1,0 +1,24 @@
+{
+  "name": "@ac-canvas/ai-core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./interfaces/*": "./src/interfaces/*",
+    "./adapters/*": "./src/adapters/*",
+    "./config/*": "./src/config/*",
+    "./prompt/*": "./src/prompt/*"
+  },
+  "dependencies": {
+    "tempura": "^0.4.1",
+    "eventemitter3": "^5.0.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "vitest": "^4.1.9",
+    "jsdom": "^29.1.1",
+    "fake-indexeddb": "^6.2.5"
+  }
+}
