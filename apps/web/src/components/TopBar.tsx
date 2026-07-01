@@ -51,7 +51,7 @@ const VIEWS: ViewItem[] = [
 // ---------------------------------------------------------------------------
 
 export function TopBar(_props: TopBarProps) {
-  const projectName = useProjectStore((s) => s.projectName)
+  const projectName = useProjectStore((s) => s.currentProjectName)
   const saving = useProjectStore((s) => s.isSaving)
   const setProjectName = useProjectStore((s) => s.setProjectName)
   const location = useLocation()

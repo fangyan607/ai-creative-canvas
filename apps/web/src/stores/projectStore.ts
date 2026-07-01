@@ -23,6 +23,8 @@ export interface ProjectStoreState {
   setCurrentProject: (id: number | null, name: string) => void
   setIsSaving: (saving: boolean) => void
   setProjectName: (name: string) => void
+  /** Sets only the project ID (used by auto-save on initial load). */
+  setProjectId: (id: number | null) => void
 }
 
 // ---------------------------------------------------------------------------
@@ -42,4 +44,7 @@ export const useProjectStore = create<ProjectStoreState>()((set) => ({
 
   setProjectName: (name) =>
     set({ currentProjectName: name }),
+
+  setProjectId: (id) =>
+    set({ currentProjectId: id }),
 }))

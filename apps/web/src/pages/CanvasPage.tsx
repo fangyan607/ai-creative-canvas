@@ -81,9 +81,11 @@ function useProjectAutoSave(projectId: number | null) {
     try {
       const canvasStr = JSON.stringify(useCanvasStore.getState().serialize())
       const graphStr = JSON.stringify(useNodeGraphStore.getState().serialize())
+      const canvasParsed = JSON.parse(canvasStr)
 
       await projectService.update(pid, {
         canvasState: canvasStr,
+        viewport: JSON.stringify(canvasParsed.viewport),
         nodeGraph: graphStr,
       })
     } finally {
@@ -161,6 +163,16 @@ export function CanvasPage() {
       },
       group: 'app',
       description: '执行工作流',
+    },
+    {
+      id: 'execute-mac',
+      key: 'Enter',
+      metaKey: true,
+      handler: () => {
+        // Reserved for future execution trigger (Phase 5) — Mac variant
+      },
+      group: 'app',
+      description: '执行工作流 (Mac)',
     },
     {
       id: 'escape',

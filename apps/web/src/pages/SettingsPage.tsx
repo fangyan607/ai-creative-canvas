@@ -133,9 +133,16 @@ export function SettingsPage() {
     try {
       const store = getProviderStore()
       for (const form of providerForms) {
+        // Preserve existing API key when user leaves field empty
+        let apiKey = form.apiKey
+        if (!apiKey) {
+          const existing = await store.loadConfig(form.providerId)
+          // Keep existing key; if none exists, pass empty string (provider disabled or new)
+          apiKey = existing?.apiKey ?? ''
+        }
         await store.saveConfig({
           providerId: form.providerId,
-          apiKey: form.apiKey,
+          apiKey,
           baseUrl: form.baseUrl,
           selectedModel: form.selectedModel || undefined,
           isEnabled: form.isEnabled,
