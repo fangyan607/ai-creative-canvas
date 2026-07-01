@@ -14,7 +14,8 @@
   "devDependencies": {
     "@braintree/sanitize-url": "6.0.1",
     "sass": "^1.101.0",
-    "typescript": "^5.0.2"
+    "typescript": "^5.0.2",
+    "vitest": "^4.1.9"
   },
   "dependencies": {
     "@excalidraw/laser-pointer": "1.3.1"

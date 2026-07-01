@@ -21,6 +21,9 @@ importers:
       typescript:
         specifier: ^5.0.2
         version: 5.0.2
+      vitest:
+        specifier: ^4.1.9
+        version: 4.1.9(jsdom@29.1.1)(vite@8.1.0(jiti@2.7.0)(sass@1.101.0))
 
   apps/web:
     dependencies:
@@ -112,6 +115,28 @@ importers:
       vite:
         specifier: ^8.1.0
         version: 8.1.0(jiti@2.7.0)(sass@1.101.0)
+      vitest:
+        specifier: ^4.1.9
+        version: 4.1.9(jsdom@29.1.1)(vite@8.1.0(jiti@2.7.0)(sass@1.101.0))
+
+  packages/ai-core:
+    dependencies:
+      eventemitter3:
+        specifier: ^5.0.4
+        version: 5.0.4
+      tempura:
+        specifier: ^0.4.1
+        version: 0.4.1
+    devDependencies:
+      fake-indexeddb:
+        specifier: ^6.2.5
+        version: 6.2.5
+      jsdom:
+        specifier: ^29.1.1
+        version: 29.1.1
+      typescript:
+        specifier: ^5.0.0
+        version: 5.0.2
       vitest:
         specifier: ^4.1.9
         version: 4.1.9(jsdom@29.1.1)(vite@8.1.0(jiti@2.7.0)(sass@1.101.0))
@@ -1916,6 +1941,9 @@ packages:
     resolution: {integrity: sha512-aIL5Fx7mawVa300al2BnEE4iNvo1qETxLrPI/o05L7z6go7fCw1J6EQmbK4FmJ2AS7kgVF/KEZWufBfdClMcPg==}
     engines: {node: '>= 0.6'}
 
+  eventemitter3@5.0.4:
+    resolution: {integrity: sha512-mlsTRyGaPBjPedk6Bvw+aqbsXDtoAyAzm5MO7JgU+yVRyMQ5O8bD4Kcci7BS85f93veegeCPkL8R4GLClnjLFw==}
+
   eventsource-parser@3.1.0:
     resolution: {integrity: sha512-kJezFj9YFAMLeORyi7aCLxLbD5/qWMQnoMVlVPyHIll7lgRJCc3JVln9Vgl9nwQi0YkMnhdGTMNn7CkRRAptMg==}
     engines: {node: '>=18.0.0'}
@@ -3089,6 +3117,10 @@ packages:
   tapable@2.3.3:
     resolution: {integrity: sha512-uxc/zpqFg6x7C8vOE7lh6Lbda8eEL9zmVm/PLeTPBRhh1xCgdWaQ+J1CUieGpIfm2HdtsUpRv+HshiasBMcc6A==}
     engines: {node: '>=6'}
+
+  tempura@0.4.1:
+    resolution: {integrity: sha512-NQ4Cs23jM6UUp3CcS5vjmyjTC6dtA5EsflBG2cyG0wZvP65AV26tJ920MGvTRYIImCY13RBpOhc7q4/pu+FG5A==}
+    engines: {node: '>=10'}
 
   tiny-invariant@1.3.3:
     resolution: {integrity: sha512-+FbBPE1o9QAYvviau/qC5SE3caw21q3xkvWKBtja5vgqOWIHHJ3ioaq1VPfn/Szqctz2bU/oYeKd9/z5BL+PVg==}
@@ -5026,6 +5058,8 @@ snapshots:
 
   etag@1.8.1: {}
 
+  eventemitter3@5.0.4: {}
+
   eventsource-parser@3.1.0: {}
 
   eventsource@3.0.7:
@@ -6253,6 +6287,8 @@ snapshots:
   tailwindcss@4.3.1: {}
 
   tapable@2.3.3: {}
+
+  tempura@0.4.1: {}
 
   tiny-invariant@1.3.3: {}
 
