@@ -12,11 +12,19 @@ import { aiRouter } from './routes/ai'
 import { filesRouter } from './routes/files'
 import { sseRouter } from './routes/sse'
 
+// Backend-friendly MockAdapter wrapper that forces fallback mode
+// (manual mode requires OffscreenCanvas which is not available in Node.js)
+class BackendMockAdapter extends MockAdapter {
+  constructor(options?: Record<string, unknown>) {
+    super({ ...(options || {}), mode: 'fallback' } as any)
+  }
+}
+
 // Register all supported AI adapters at factory time
 const registry = AdapterRegistry.getInstance()
-registry.register(MockAdapter)     // providerId: 'mock'
-registry.register(OpenAiAdapter)   // providerId: 'openai'
-registry.register(StabilityAdapter) // providerId: 'stability'
+registry.register(BackendMockAdapter)  // providerId: 'mock' (fallback mode)
+registry.register(OpenAiAdapter)       // providerId: 'openai'
+registry.register(StabilityAdapter)    // providerId: 'stability'
 
 export function createApp(): Hono {
   const app = new Hono()
