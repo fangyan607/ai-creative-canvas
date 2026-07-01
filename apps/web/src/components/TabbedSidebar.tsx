@@ -200,13 +200,11 @@ export function TabbedSidebar() {
 
         {/* Expand toggle */}
         <Tooltip>
-          <TooltipTrigger>
-            <button
-              onClick={toggleSidebar}
-              className="flex items-center justify-center w-9 h-9 rounded-md text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors mb-2"
-            >
-              <ChevronRight size={16} />
-            </button>
+          <TooltipTrigger
+            onClick={toggleSidebar}
+            className="flex items-center justify-center w-9 h-9 rounded-md text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors mb-2"
+          >
+            <ChevronRight size={16} />
           </TooltipTrigger>
           <TooltipContent side="right" sideOffset={8}>
             Expand sidebar
