@@ -1,0 +1,22 @@
+{
+  "name": "@ac-canvas/backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ac-canvas/ai-core": "workspace:*",
+    "@hono/node-server": "^2.0.6",
+    "hono": "^4.12.27"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.0.0",
+    "vitest": "^4.1.9"
+  }
+}
