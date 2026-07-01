@@ -2,7 +2,7 @@
 
 ## Overview
 
-From foundation to full creative tool: we start by establishing the infinite canvas as the core rendering surface (Excalidraw fork with chunk rendering, element management, and IndexedDB persistence). Then we layer on the visual node editor (React Flow integration, 5 node types, parameter panel), followed by the DAG execution engine that makes nodes compute. With the editing pipeline in place, we integrate AI generation through a clean adapter pattern (OpenAI, Stability, MockAdapter) with BYOK support, then add the execution infrastructure (queue, SSE streaming, engine bridge). A lightweight Hono backend provides AI proxy and file services. The application UI phase wraps everything in a polished shell with project management, export, and settings. Finally, we lock in quality with comprehensive testing.
+From foundation to full creative tool: we start by establishing the infinite canvas as the core rendering surface (Excalidraw fork with chunk rendering, element management, and IndexedDB persistence). Then we layer on the visual node editor (React Flow integration, 5 node types, parameter panel), followed by the DAG execution engine that makes nodes compute. With the editing pipeline in place, we integrate AI generation through a clean adapter pattern (OpenAI, Stability, MockAdapter) with BYOK support, then add the execution infrastructure (queue, EventEmitter progress, engine bridge). A lightweight Hono backend provides AI proxy and file services. The application UI phase wraps everything in a polished shell with project management, export, and settings. Finally, we lock in quality with comprehensive testing.
 
 ## Phases
 
@@ -10,7 +10,7 @@ From foundation to full creative tool: we start by establishing the infinite can
 - [ ] **Phase 2: Node Editor Interface** - React Flow integration with 5 node types, drag-connect, parameter panel, and graph serialization
 - [ ] **Phase 3: Node Engine** - Topological sort execution, parallel/incremental DAG execution, node undo/redo, and sub-group support
 - [ ] **Phase 4: AI Adapters** - OpenAI and Stability.ai adapters, MockAdapter, BYOK mode, and Prompt builder system
-- [ ] **Phase 5: AI Execution Infrastructure** - Request queue with rate limiting, SSE progress streaming, and node-engine-to-AI bridge
+- [ ] **Phase 5: AI Execution Infrastructure** - Request queue with rate limiting, EventEmitter progress streaming, and node-engine-to-AI bridge
 - [ ] **Phase 6: Backend Services** - Hono-based AI proxy API and file upload/download service
 - [ ] **Phase 7: Application UI** - Toolbar/sidebar/panel shell, canvas export, project management page, and settings page
 - [ ] **Phase 8: Testing & Performance** - Node engine unit tests, AI adapter mock tests, core E2E flow tests
@@ -85,23 +85,26 @@ From foundation to full creative tool: we start by establishing the infinite can
   5. While offline or during development, MockAdapter returns realistic test images without any API call
 **Plans**: 6 plans in 2 waves
 **Plan list:**
-- [ ] 04-01-PLAN.md — Foundation: packages/ai-core package, types, AiAdapter abstract class, AdapterRegistry, contract tests (Wave 1)
-- [ ] 04-02-PLAN.md — MockAdapter: offline canvas-rendered image generator with dual-mode fallback (Wave 2)
-- [ ] 04-03-PLAN.md — OpenAI DALL-E 3 adapter: direct fetch() with error sanitization (Wave 2)
-- [ ] 04-04-PLAN.md — Stability.ai adapter: dual v1/v2beta API dispatch with image-to-image (Wave 2)
-- [ ] 04-05-PLAN.md — ProviderStore: BYOK config with Web Crypto encrypted IndexedDB storage (Wave 2)
-- [ ] 04-06-PLAN.md — Template engine + prompt templates: tempura-based rendering with 4-source variable resolution (Wave 2)
+- [x] 04-01-PLAN.md — Foundation: packages/ai-core package, types, AiAdapter abstract class, AdapterRegistry, contract tests (Wave 1)
+- [x] 04-02-PLAN.md — MockAdapter: offline canvas-rendered image generator with dual-mode fallback (Wave 2)
+- [x] 04-03-PLAN.md — OpenAI DALL-E 3 adapter: direct fetch() with error sanitization (Wave 2)
+- [x] 04-04-PLAN.md — Stability.ai adapter: dual v1/v2beta API dispatch with image-to-image (Wave 2)
+- [x] 04-05-PLAN.md — ProviderStore: BYOK config with Web Crypto encrypted IndexedDB storage (Wave 2)
+- [x] 04-06-PLAN.md — Template engine + prompt templates: tempura-based rendering with 4-source variable resolution (Wave 2)
 
 ### Phase 5: AI Execution Infrastructure
 **Goal**: AI tasks flow from the node engine through a managed queue with real-time progress streaming back to the canvas
 **Depends on**: Phase 4, Phase 3
 **Requirements**: AI-04, AI-07, AI-08
 **Success Criteria** (what must be TRUE):
-  1. Multiple AI requests queue and execute sequentially within configured rate limits (no concurrent overrun)
-  2. User sees real-time generation progress in the UI via SSE events (queued -> processing -> chunk -> done)
-  3. AI-generated images automatically appear as AIElement instances on the canvas when generation completes
-  4. The TextToImageNode and StyleNode correctly pass their parameters through the engine bridge to AI adapters and receive results back
-**Plans**: TBD
+  1. Multiple AI requests queue and execute sequentially within configured rate limits (no concurrent overrun per D-02/D-03)
+  2. User sees real-time generation progress via node status indicators driven by EventEmitter events (queued -> executing -> done/error per D-05)
+  3. TextToImageNode and StyleNode correctly pass their parameters through the engine bridge to AI adapters and receive results back (no auto-placement per D-06; PreviewNode Apply controls canvas placement)
+**Plans**: 3 plans in 3 waves
+**Plan list:**
+- [ ] 05-01-PLAN.md — Rate limiter utility (sliding window, hardcoded defaults) + ImageBlobStore (in-memory MVP) (Wave 1)
+- [ ] 05-02-PLAN.md — AIQueueStore (per-provider queues, rate limiter integration, serial execution loop) + EngineStore queue state extension (Wave 2)
+- [ ] 05-03-PLAN.md — Engine-AI bridge factory (createAiExecutor) + ProviderStore singleton + Dexie backend + resolver swap + App.tsx bootstrap (Wave 3)
 
 ### Phase 6: Backend Services
 **Goal**: Backend proxies AI requests to hide client-side API keys and handles file storage
@@ -145,7 +148,7 @@ From foundation to full creative tool: we start by establishing the infinite can
 | 2. Node Editor Interface | 0/5 | Not started | - |
 | 3. Node Engine | 0/5 | Not started | - |
 | 4. AI Adapters | 0/6 | Not started | - |
-| 5. AI Execution Infrastructure | 0/0 | Not started | - |
+| 5. AI Execution Infrastructure | 0/3 | Not started | - |
 | 6. Backend Services | 0/0 | Not started | - |
 | 7. Application UI | 0/0 | Not started | - |
 | 8. Testing & Performance | 0/0 | Not started | - |
