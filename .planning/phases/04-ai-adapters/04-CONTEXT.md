@@ -48,12 +48,13 @@
   - `'error'` with `{ code: string, message: string }` — partial errors before execution completes
   - `'done'` with `AdapterResult` — final completion event
   - Phase 5 will wire these events into SSE streaming to the frontend. Phase 4 defines the contract but doesn't consume it.
-- **D-06: Provider metadata exposed statically** — Each adapter class exposes static metadata:
+- **D-06: Provider metadata exposed as instance properties** — Each adapter class exposes abstract readonly instance properties:
   ```ts
-  static providerId: string           // e.g., 'openai', 'stability', 'mock'
-  static providerName: string         // e.g., 'OpenAI'
-  static defaultBaseUrl: string       // official API endpoint
+  abstract readonly providerId: string           // e.g., 'openai', 'stability', 'mock'
+  abstract readonly providerName: string         // e.g., 'OpenAI'
+  abstract readonly defaultBaseUrl: string       // official API endpoint
   ```
+  These are declared as abstract instance properties on the `AiAdapter` base class (not static), making them easy to inspect via instantiated adapters while keeping the interface consistent across all implementations.
 
 ### 包结构 (Package Structure)
 - **D-07: New `packages/ai-core` workspace package** — All adapter code lives in a new monorepo package at `packages/ai-core/`, co-located with existing packages (`excalidraw/`, `node-editor/`, `shared/`). Structure:
