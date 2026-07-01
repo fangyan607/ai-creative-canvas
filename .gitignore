@@ -5,3 +5,4 @@ dist/
 design-md/
 apps/backend/uploads/
 .claude/worktrees/
+.gstack/
