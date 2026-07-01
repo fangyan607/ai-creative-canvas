@@ -47,7 +47,9 @@ export default defineConfig({
     ],
   },
   plugins: [
-    react(),
+    // VITEST env is set automatically by vitest — disable react-refresh in tests
+    // to avoid 'file:///@react-refresh' TypeError in jsdom environment
+    ...(process.env.VITEST ? [] : [react()]),
     tailwindcss(), // TailwindCSS v4 Vite plugin
   ],
   server: {

@@ -1,14 +1,20 @@
-import { useCallback, useState } from 'react'
+// ---------------------------------------------------------------------------
+// LayerPanel / LayerListContent — Element layer management.
+//
+// LayerListContent (inner) renders the element list from canvasStore — used
+// inside TabbedSidebar as the "图层" (Layers) tab content.
+// LayerPanel (outer wrapper) is a backward-compat export for the standalone
+// right-side panel used before Phase 7 introduced the tabbed sidebar.
+// ---------------------------------------------------------------------------
+
+import { useCallback } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useCanvasStore } from '../stores/canvasStore'
-import { projectService } from '../indexedb/projectService'
 
-interface LayerPanelProps {
-  projectId: number | null
-  onProjectIdChange: (id: number) => void
-}
-
+// ---------------------------------------------------------------------------
 // Icon mapping for element types
+// ---------------------------------------------------------------------------
+
 const TYPE_LABELS: Record<string, string> = {
   rectangle: 'Rectangle',
   ellipse: 'Ellipse',
@@ -37,9 +43,11 @@ const TYPE_ICONS: Record<string, string> = {
   'ai-image': '✨',
 }
 
-export function LayerPanel({ projectId, onProjectIdChange }: LayerPanelProps) {
-  const [isSaving, setIsSaving] = useState(false)
-  const [showSaveAs, setShowSaveAs] = useState(false)
+// ---------------------------------------------------------------------------
+// LayerListContent — renders the element list (used inside TabbedSidebar)
+// ---------------------------------------------------------------------------
+
+export function LayerListContent() {
   // Fine-grained selectors per D-24
   const elements = useCanvasStore(
     useShallow((s) => s.elementOrder.map((id) => s.elements[id]).filter(Boolean)),
@@ -60,13 +68,11 @@ export function LayerPanel({ projectId, onProjectIdChange }: LayerPanelProps) {
   const toggleElementLock = useCanvasStore((s) => s.toggleElementLock)
   const toggleElementHide = useCanvasStore((s) => s.toggleElementHide)
   const groupElements = useCanvasStore((s) => s.groupElements)
-  const ungroupElement = useCanvasStore((s) => s.ungroupElement)
   const removeElements = useCanvasStore((s) => s.removeElements)
 
   const handleDelete = useCallback(
     (id: string) => {
       removeElements([id])
-      // Canvas scene update for deletes is handled by CanvasWrapper's onChange cycle
     },
     [removeElements],
   )
@@ -77,7 +83,168 @@ export function LayerPanel({ projectId, onProjectIdChange }: LayerPanelProps) {
     }
   }, [selectedIds, groupElements])
 
-  // Save handlers
+  if (elements.length === 0) {
+    return (
+      <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm p-4 text-center">
+        请绘制一些内容
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex flex-col h-full overflow-hidden">
+      {/* Batch actions */}
+      {selectedIds.length >= 2 && (
+        <div className="px-3 py-1.5 border-b border-sidebar-border flex gap-1 shrink-0">
+          <button
+            onClick={handleGroupSelection}
+            className="text-xs px-2 py-1 bg-accent/30 text-accent-foreground rounded hover:bg-accent/50 transition-colors"
+            title="Group selected"
+          >
+            Group {selectedIds.length}
+          </button>
+        </div>
+      )}
+
+      {/* Element list */}
+      <div className="flex-1 overflow-y-auto">
+        {elements.map((el: any) => {
+          if (!el) return null
+          const isSelected = selectedIds.includes(el.id)
+          const typeLabel = TYPE_LABELS[el.type] || el.type
+          const icon = TYPE_ICONS[el.type] || '?'
+          const isHidden = el.customData?.hidden === true
+
+          return (
+            <div
+              key={el.id}
+              className={[
+                'flex items-center gap-1 px-3 py-1.5 text-sm border-b border-sidebar-border/50',
+                'hover:bg-sidebar-accent cursor-pointer group',
+                isSelected
+                  ? 'bg-accent/20 border-l-2 border-l-accent'
+                  : '',
+                isHidden ? 'opacity-40' : '',
+              ].join(' ')}
+            >
+              {/* Type icon */}
+              <span
+                className="text-xs w-5 text-center text-sidebar-foreground/50"
+                title={typeLabel}
+              >
+                {icon}
+              </span>
+
+              {/* Element name/label */}
+              <span className="flex-1 truncate text-sidebar-foreground text-xs">
+                {el.customData?.name || typeLabel}
+                {isHidden && (
+                  <span className="text-sidebar-foreground/40 ml-1">(hidden)</span>
+                )}
+              </span>
+
+              {/* Layer controls (appear on hover) */}
+              <div className="hidden group-hover:flex items-center gap-0.5">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    moveElementUp(el.id)
+                  }}
+                  className="p-0.5 hover:bg-sidebar-accent rounded text-sidebar-foreground/50"
+                  title="Move up"
+                >
+                  {'↑'}
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    moveElementDown(el.id)
+                  }}
+                  className="p-0.5 hover:bg-sidebar-accent rounded text-sidebar-foreground/50"
+                  title="Move down"
+                >
+                  {'↓'}
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    toggleElementLock(el.id)
+                  }}
+                  className={[
+                    'p-0.5 rounded',
+                    el.locked
+                      ? 'text-amber-500'
+                      : 'text-sidebar-foreground/40 hover:bg-sidebar-accent',
+                  ].join(' ')}
+                  title={el.locked ? 'Unlock' : 'Lock'}
+                >
+                  {'🔒'}
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    toggleElementHide(el.id)
+                  }}
+                  className={[
+                    'p-0.5 rounded',
+                    isHidden
+                      ? 'text-sidebar-foreground/30'
+                      : 'text-sidebar-foreground/40 hover:bg-sidebar-accent',
+                  ].join(' ')}
+                  title={isHidden ? 'Show' : 'Hide'}
+                >
+                  {'👁'}
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleDelete(el.id)
+                  }}
+                  className="p-0.5 hover:bg-destructive/10 rounded text-sidebar-foreground/40 hover:text-destructive"
+                  title="Delete"
+                >
+                  {'✕'}
+                </button>
+              </div>
+
+              {/* Always-visible state indicators */}
+              <div className="flex items-center gap-0.5">
+                {el.locked && (
+                  <span className="text-[10px] text-amber-500" title="Locked">
+                    {'🔒'}
+                  </span>
+                )}
+                {isHidden && (
+                  <span className="text-[10px] text-sidebar-foreground/30" title="Hidden">
+                    {'👁'}
+                  </span>
+                )}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// LayerPanel — backward-compat export with outer container and save buttons
+// (kept for reference, no longer used in Phase 7+ shell)
+// ---------------------------------------------------------------------------
+
+import { useState } from 'react'
+import { projectService } from '../indexedb/projectService'
+
+interface LayerPanelProps {
+  projectId: number | null
+  onProjectIdChange: (id: number) => void
+}
+
+export function LayerPanel({ projectId, onProjectIdChange }: LayerPanelProps) {
+  const [isSaving, setIsSaving] = useState(false)
+  const [showSaveAs, setShowSaveAs] = useState(false)
+
   const handleSave = useCallback(async () => {
     if (!projectId) { setShowSaveAs(true); return }
     setIsSaving(true)
@@ -105,185 +272,11 @@ export function LayerPanel({ projectId, onProjectIdChange }: LayerPanelProps) {
     } finally { setIsSaving(false) }
   }, [onProjectIdChange])
 
-  if (elements.length === 0) {
-    return (
-      <div className="w-64 h-full bg-white border-l border-gray-200 flex flex-col">
-        <div className="p-3 border-b border-gray-200 font-semibold text-sm text-gray-500">
-          Layers
-        </div>
-        <div className="flex-1 flex items-center justify-center text-gray-400 text-sm p-4 text-center">
-          请绘制一些内容
-        </div>
-        <div className="flex justify-center gap-2 px-3 py-3 border-t border-gray-200">
-          <button
-            onClick={handleSave}
-            disabled={isSaving}
-            className="px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 disabled:opacity-50 text-gray-700 font-medium"
-          >
-            {isSaving ? '保存中...' : '保存'}
-          </button>
-          <button
-            onClick={() => setShowSaveAs(true)}
-            className="px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 text-gray-700 font-medium"
-          >
-            另存
-          </button>
-        </div>
-        {showSaveAs && (
-          <SaveAsDialog
-            onSubmit={handleSaveAs}
-            onClose={() => setShowSaveAs(false)}
-          />
-        )}
-      </div>
-    )
-  }
-
   return (
-    <div className="w-64 h-full bg-white border-l border-gray-200 flex flex-col overflow-hidden">
-      {/* Header */}
-      <div className="px-3 py-2 border-b border-gray-200 flex items-center justify-between">
-        <span className="font-semibold text-sm text-gray-700">Layers</span>
-        <span className="text-xs text-gray-400">{elements.length}</span>
+    <div className="w-64 h-full bg-white border-l border-gray-200 flex flex-col">
+      <div className="flex-1 overflow-hidden">
+        <LayerListContent />
       </div>
-
-      {/* Batch actions */}
-      {selectedIds.length >= 2 && (
-        <div className="px-3 py-1.5 border-b border-gray-100 flex gap-1">
-          <button
-            onClick={handleGroupSelection}
-            className="text-xs px-2 py-1 bg-indigo-50 text-indigo-600 rounded hover:bg-indigo-100"
-            title="Group selected"
-          >
-            Group {selectedIds.length}
-          </button>
-        </div>
-      )}
-
-      {/* Element list */}
-      <div className="flex-1 overflow-y-auto">
-        {elements.map((el: any) => {
-          if (!el) return null
-          const isSelected = selectedIds.includes(el.id)
-          const typeLabel = TYPE_LABELS[el.type] || el.type
-          const icon = TYPE_ICONS[el.type] || '?'
-          // Read hide state from customData.hidden (NOT isDeleted)
-          const isHidden = el.customData?.hidden === true
-
-          return (
-            <div
-              key={el.id}
-              className={[
-                'flex items-center gap-1 px-3 py-1.5 text-sm border-b border-gray-50',
-                'hover:bg-gray-50 cursor-pointer group',
-                isSelected
-                  ? 'bg-indigo-50 border-l-2 border-l-indigo-500'
-                  : '',
-                isHidden ? 'opacity-40' : '',
-              ].join(' ')}
-            >
-              {/* Type icon */}
-              <span
-                className="text-xs w-5 text-center text-gray-500"
-                title={typeLabel}
-              >
-                {icon}
-              </span>
-
-              {/* Element name/label */}
-              <span className="flex-1 truncate text-gray-700 text-xs">
-                {el.customData?.name || typeLabel}
-                {isHidden && (
-                  <span className="text-gray-400 ml-1">(hidden)</span>
-                )}
-              </span>
-
-              {/* Layer controls (appear on hover) */}
-              <div className="hidden group-hover:flex items-center gap-0.5">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    moveElementUp(el.id)
-                  }}
-                  className="p-0.5 hover:bg-gray-200 rounded text-gray-500"
-                  title="Move up"
-                >
-                  {'↑'}
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    moveElementDown(el.id)
-                  }}
-                  className="p-0.5 hover:bg-gray-200 rounded text-gray-500"
-                  title="Move down"
-                >
-                  {'↓'}
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    toggleElementLock(el.id)
-                  }}
-                  className={[
-                    'p-0.5 rounded',
-                    el.locked
-                      ? 'text-amber-500'
-                      : 'text-gray-400 hover:bg-gray-200',
-                  ].join(' ')}
-                  title={el.locked ? 'Unlock' : 'Lock'}
-                >
-                  {'🔒'}
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    toggleElementHide(el.id)
-                  }}
-                  className={[
-                    'p-0.5 rounded',
-                    isHidden
-                      ? 'text-gray-300'
-                      : 'text-gray-400 hover:bg-gray-200',
-                  ].join(' ')}
-                  title={isHidden ? 'Show' : 'Hide'}
-                >
-                  {'👁'}
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleDelete(el.id)
-                  }}
-                  className="p-0.5 hover:bg-red-100 rounded text-gray-400 hover:text-red-500"
-                  title="Delete"
-                >
-                  {'✕'}
-                </button>
-              </div>
-
-              {/* Always-visible state indicators */}
-              <div className="flex items-center gap-0.5">
-                {el.locked && (
-                  <span
-                    className="text-[10px] text-amber-500"
-                    title="Locked"
-                  >
-                    {'🔒'}
-                  </span>
-                )}
-                {isHidden && (
-                  <span className="text-[10px] text-gray-300" title="Hidden">
-                    {'👁'}
-                  </span>
-                )}
-              </div>
-            </div>
-          )
-        })}
-      </div>
-
-      {/* Save buttons — bottom of Layers panel */}
       <div className="flex justify-center gap-2 px-3 py-3 border-t border-gray-200">
         <button
           onClick={handleSave}
@@ -299,8 +292,6 @@ export function LayerPanel({ projectId, onProjectIdChange }: LayerPanelProps) {
           另存
         </button>
       </div>
-
-      {/* Save As dialog */}
       {showSaveAs && (
         <SaveAsDialog
           onSubmit={handleSaveAs}
@@ -310,6 +301,10 @@ export function LayerPanel({ projectId, onProjectIdChange }: LayerPanelProps) {
     </div>
   )
 }
+
+// ---------------------------------------------------------------------------
+// SaveAsDialog — inline modal for saving a new project
+// ---------------------------------------------------------------------------
 
 function SaveAsDialog({
   onSubmit,

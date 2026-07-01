@@ -1,216 +1,60 @@
-import { AdapterRegistry } from '@ac-canvas/ai-core'
-import { MockAdapter } from '@ac-canvas/ai-core/adapters/mock.adapter'
-import { OpenAiAdapter } from '@ac-canvas/ai-core/adapters/openai.adapter'
-import { StabilityAdapter } from '@ac-canvas/ai-core/adapters/stability.adapter'
-import { initProviderStore, isProviderStoreReady } from './stores/providerStoreSingleton'
-import { useState, useCallback, useEffect } from 'react'
-import { useShallow } from 'zustand/react/shallow'
-import { CanvasWrapper } from './components/CanvasWrapper'
-import { LayerPanel } from './components/LayerPanel'
-import { useAutoSave } from './hooks/useAutoSave'
-import { useAutoExecute } from './hooks/useAutoExecute'
-import { useEngineStore } from './stores/engineStore'
-import { initSSE, useSSEProgress } from './services/useSSEProgress'
-import { useNodeGraphStore } from './stores/nodeGraphStore'
-import { useHistoryStore } from './stores/historyStore'
-import { NodeEditorOverlay } from '@ac-canvas/node-editor'
-import { PropertyPanel } from '@ac-canvas/node-editor'
-import { nodeTypeDefinitions } from '@ac-canvas/shared'
-import {
-  MessageSquareText,
-  WandSparkles,
-  Palette,
-  Layers,
-  Eye,
-  Plus,
-  FolderKanban,
-  type LucideIcon,
-} from 'lucide-react'
+// ---------------------------------------------------------------------------
+// App — Application shell with React Router.
+//
+// Layout route pattern: AppShell (TopBar + TabbedSidebar + Outlet) wraps
+// child routes for CanvasPage, ProjectsPage, SettingsPage.
+//
+// D-01: Hybrid navigation model — primary views use React Router.
+// D-02: Minimal top bar with global operations.
+// D-03/D-04: Left unified panel with tab switching, collapsible to 44px.
+// ---------------------------------------------------------------------------
 
-const TOOLBAR_ICON_MAP: Record<string, LucideIcon> = {
-  'message-square-text': MessageSquareText,
-  'wand-sparkles': WandSparkles,
-  palette: Palette,
-  layers: Layers,
-  eye: Eye,
-}
+import { Suspense } from 'react'
+import { Routes, Route, Outlet } from 'react-router-dom'
+import { TopBar } from './components/TopBar'
+import { TabbedSidebar } from './components/TabbedSidebar'
+import { CanvasPage } from './pages/CanvasPage'
+import { ProjectsPage } from './pages/ProjectsPage'
+import { SettingsPage } from './pages/SettingsPage'
 
-function getToolbarIcon(iconName: string): LucideIcon {
-  return TOOLBAR_ICON_MAP[iconName] || Plus
-}
+// ---------------------------------------------------------------------------
+// AppShell layout
+// ---------------------------------------------------------------------------
 
-const NODE_LABELS_CN: Record<string, string> = {
-  prompt: '提示词',
-  'text-to-image': '文生图',
-  style: '风格',
-  merge: '合并',
-  preview: '预览',
-}
-
-function App() {
-  const [projectId, setProjectId] = useState<number | null>(null)
-
-  // Node editor state (fine-grained selectors per D-24)
-  const focusMode = useNodeGraphStore(useShallow((s) => s.focusMode))
-  const selectedNodeId = useNodeGraphStore(useShallow((s) => s.selectedNodeId))
-  const setFocusMode = useNodeGraphStore((s) => s.setFocusMode)
-
-  const isNodeMode = focusMode === 'nodes'
-
-  useAutoSave(projectId)
-  useAutoExecute()
-  useSSEProgress()
-
-  const handleProjectIdChange = useCallback((id: number) => {
-    setProjectId(id)
-  }, [])
-
-  const handleFocusModeChange = useCallback((mode: 'canvas' | 'nodes') => {
-    setFocusMode(mode)
-  }, [setFocusMode])
-
-  // Execution state (for status indicator)
-  const isExecuting = useEngineStore((s) => s.isExecuting)
-  const nodeErrors = useEngineStore(useShallow((s) => Object.keys(s.nodeErrors).length > 0 ? s.nodeErrors : {}))
-  const errorCount = Object.keys(nodeErrors).length
-
-  // Bootstrap: register AI adapters and initialize ProviderStore (Phase 5)
-  useEffect(() => {
-    const registry = AdapterRegistry.getInstance()
-    registry.register(MockAdapter)
-    registry.register(OpenAiAdapter)
-    registry.register(StabilityAdapter)
-    console.log('[Phase 5] Adapters registered:', registry.getAllProviders().map(p => p.providerId))
-
-    // Initialize ProviderStore with Dexie backend
-    initProviderStore()
-    console.log('[Phase 5] ProviderStore initialized')
-
-    // Initialize SSE connection for proxy mode (no-op in direct mode)
-    initSSE()
-  }, [])
-
-  // Reserve Ctrl+Enter for future execution trigger (Phase 5)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-        // Phase 5 will wire this to explicit execution trigger
-        // Phase 3: auto-execute is already active, so this is a no-op
-        e.preventDefault()
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
-
+function AppShell() {
   return (
-    <div className="w-screen h-screen overflow-hidden flex relative">
-      {/* Left sidebar — LayerPanel always visible */}
-      <LayerPanel
-        projectId={projectId}
-        onProjectIdChange={handleProjectIdChange}
+    <div className="w-screen h-screen overflow-hidden flex flex-col bg-background text-foreground">
+      <TopBar
+        projectName="无标题项目"
+        saving={false}
+        onProjectNameChange={() => {
+          // Will be wired to project store in Plan 02
+        }}
       />
-
-      {/* Center area — contains canvas + node overlay stacked */}
-      <div className="flex-1 relative">
-
-        {/* Canvas — disabled when in node mode */}
-        <CanvasWrapper disabled={isNodeMode} />
-
-        {/* Node editor overlay — interactive only in node mode */}
-        <NodeEditorOverlay
-          focusMode={focusMode}
-          onFocusModeChange={handleFocusModeChange}
-        />
-
-        {/* Focus mode toggle — bottom-right (replaces SaveButton position) */}
-        <div className="absolute bottom-5 right-[60px] z-10 flex gap-1">
-          <button
-            className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg border transition-colors shadow-sm min-w-[56px] ${
-              focusMode === 'canvas'
-                ? 'bg-gray-900 text-white border-gray-900'
-                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
-            }`}
-            onClick={() => handleFocusModeChange('canvas')}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-            <span className="text-[10px] whitespace-nowrap">画布</span>
-          </button>
-          <button
-            className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg border transition-colors shadow-sm min-w-[56px] ${
-              focusMode === 'nodes'
-                ? 'bg-gray-900 text-white border-gray-900'
-                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
-            }`}
-            onClick={() => handleFocusModeChange('nodes')}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="3"/></svg>
-            <span className="text-[10px] whitespace-nowrap">节点</span>
-          </button>
-        </div>
-
-        {/* Node palette toolbar — bottom-center */}
-        <div
-          className="absolute bottom-2.5 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-1"
-          style={{ display: isNodeMode ? 'flex' : 'none' }}
-        >
-          <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-xl px-3 py-2 shadow-md">
-          {nodeTypeDefinitions.map((def) => {
-            const Icon = getToolbarIcon(def.icon)
-            const cnLabel = NODE_LABELS_CN[def.type] || def.label
-            return (
-              <button
-                key={def.type}
-                draggable
-                onDragStart={(e) => {
-                  e.dataTransfer.setData('application/reactflow', def.type)
-                  e.dataTransfer.effectAllowed = 'move'
-                }}
-                className="flex flex-col items-center gap-0.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg cursor-grab active:cursor-grabbing hover:bg-gray-50 transition-colors shadow-sm min-w-[56px]"
-                title={def.label + ' — 拖拽到画布创建'}
-              >
-                <Icon size={18} />
-                <span className="text-[10px] text-gray-600 whitespace-nowrap">{cnLabel}</span>
-              </button>
-            )
-          })}
-          <div className="w-px h-8 bg-gray-300" />
-          <button
-            onClick={() => {
-              useNodeGraphStore.getState().createGroup('New Group', { x: -150, y: -100 })
-              useHistoryStore.getState().captureSnapshot()
-            }}
-            className="flex flex-col items-center gap-0.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer shadow-sm min-w-[56px]"
-            title="创建分组 — 点击创建空组"
-          >
-            <FolderKanban size={18} />
-            <span className="text-[10px] text-gray-600 whitespace-nowrap">分组</span>
-          </button>
-          </div>
-          <div className="text-[9px] text-gray-400 tracking-wide">拖拽按钮到画布创建节点</div>
-        </div>
-
-        {/* Execution status indicator — bottom-left, above mode toggle */}
-        <div className="absolute bottom-12 left-2.5 z-50 flex items-center gap-2">
-          {isExecuting && (
-            <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white border border-[var(--color-hairline)] rounded-full text-[11px] text-[var(--color-muted-foreground)] shadow-sm">
-              <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-              <span>Executing...</span>
-            </div>
-          )}
-          {errorCount > 0 && (
-            <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-red-50 border border-red-200 rounded-full text-[11px] text-red-600 shadow-sm">
-              <div className="w-2 h-2 rounded-full bg-red-500" />
-              <span>{errorCount} error{errorCount > 1 ? 's' : ''}</span>
-            </div>
-          )}
-        </div>
+      <div className="flex-1 flex overflow-hidden">
+        <TabbedSidebar />
+        <main className="flex-1 relative overflow-hidden">
+          <Suspense fallback={<div className="flex items-center justify-center h-full text-muted-foreground">加载中...</div>}>
+            <Outlet />
+          </Suspense>
+        </main>
       </div>
-
-      {/* Right sidebar — PropertyPanel visible when a node is selected */}
-      <PropertyPanel selectedNodeId={selectedNodeId} />
     </div>
   )
 }
 
-export default App
+// ---------------------------------------------------------------------------
+// App — Router entry point
+// ---------------------------------------------------------------------------
+
+export default function App() {
+  return (
+    <Routes>
+      <Route element={<AppShell />}>
+        <Route index element={<CanvasPage />} />
+        <Route path="projects" element={<ProjectsPage />} />
+        <Route path="settings" element={<SettingsPage />} />
+      </Route>
+    </Routes>
+  )
+}
