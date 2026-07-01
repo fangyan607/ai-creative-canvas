@@ -114,9 +114,11 @@ describe('AppShell', () => {
     expect(screen.getByTestId('canvas-wrapper')).toBeInTheDocument()
   })
 
-  it('renders ProjectsPage at /projects', () => {
+  it('renders ProjectsPage at /projects', async () => {
     renderWithRouter('/projects')
-    expect(screen.getByText('暂无项目')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText('暂无项目')).toBeInTheDocument()
+    })
   })
 
   it('renders SettingsPage at /settings', () => {
