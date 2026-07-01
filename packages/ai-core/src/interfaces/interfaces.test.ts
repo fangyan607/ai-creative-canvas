@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import type { AdapterResult, ConnectionResult, ConfigField, ModelDescriptor } from './types'
 import { AiAdapterError } from './types'
 import { AiAdapter } from './AiAdapter'

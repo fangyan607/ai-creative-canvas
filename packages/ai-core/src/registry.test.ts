@@ -2,7 +2,7 @@
 // AdapterRegistry Tests
 // ---------------------------------------------------------------------------
 
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { AdapterRegistry } from './registry'
 import { AiAdapter } from './interfaces/AiAdapter'
 import type { AdapterResult, ConnectionResult, ModelDescriptor, ConfigField } from './interfaces/types'
