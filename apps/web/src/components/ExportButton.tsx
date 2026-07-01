@@ -105,14 +105,8 @@ export function ExportButton() {
         </Button>
 
         <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Button
-              size="sm"
-              variant="outline"
-              className="rounded-l-none border-l-0 px-1.5"
-            >
-              <ChevronDown size={14} />
-            </Button>
+          <DropdownMenuTrigger className="inline-flex items-center justify-center border bg-background text-sm font-medium rounded-l-none border-l-0 px-1.5 h-9 hover:bg-accent hover:text-accent-foreground transition-colors">
+            <ChevronDown size={14} />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" sideOffset={4}>
             <DropdownMenuItem onClick={() => setDialogOpen(true)}>
