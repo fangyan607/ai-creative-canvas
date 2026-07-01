@@ -135,7 +135,7 @@ aiRouter.post('/generate', async (c) => {
         }
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err)
-        stream.writeSSE({
+        await stream.writeSSE({
           event: 'error',
           data: JSON.stringify({
             type: 'error',
@@ -148,6 +148,8 @@ aiRouter.post('/generate', async (c) => {
         }).catch(() => {})
       } finally {
         adapter.removeAllListeners()
+        // Give pending writeSSE promises time to flush before stream closes
+        await stream.sleep(200)
       }
     })
   }
