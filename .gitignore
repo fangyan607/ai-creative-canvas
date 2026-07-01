@@ -2,5 +2,5 @@ node_modules/
 dist/
 .turbo/
 *.local
-.gstack/
+design-md/
 apps/backend/uploads/

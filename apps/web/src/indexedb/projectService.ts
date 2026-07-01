@@ -4,11 +4,13 @@ export const projectService = {
   /** Create a new project. Returns the auto-generated id. */
   async save(project: Omit<ProjectRecord, 'id' | 'createdAt' | 'updatedAt'>): Promise<number> {
     const now = new Date()
-    return db.projects.add({
+    const id = await db.projects.add({
       ...project,
       createdAt: now,
       updatedAt: now,
-    } as ProjectRecord)
+    })
+    if (id === undefined) throw new Error('Failed to create project')
+    return id
   },
 
   /** Update an existing project. Updates updatedAt timestamp. */

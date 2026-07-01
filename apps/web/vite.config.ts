@@ -10,11 +10,6 @@ const excalidrawDir = path.resolve(__dirname, '../../packages/excalidraw')
 export default defineConfig({
   resolve: {
     alias: [
-      // shadcn/ui aliases (matches tsconfig paths)
-      {
-        find: /^@\/(.*)/,
-        replacement: path.resolve(__dirname, 'src/$1'),
-      },
       // Resolve @excalidraw/* to local vendored source/overrides instead of
       // broken npm packages. The vendored Excalidraw fork imports from
       // @excalidraw/utils/* and @excalidraw/math/*, but the npm-published
@@ -43,17 +38,12 @@ export default defineConfig({
         find: /^@excalidraw\/utils$/,
         replacement: path.resolve(excalidrawDir, 'utils/index.ts'),
       },
-      // @excalidraw/math subpath imports — npm package bundles everything
-      // into a single index.js, so redirect subpaths to the main entry.
+      // @ path alias for shadcn/ui
       {
-        find: /^@excalidraw\/math\/ellipse$/,
-        replacement: path.resolve(excalidrawDir, 'node_modules/@excalidraw/math'),
+        find: '@',
+        replacement: path.resolve(__dirname, 'src'),
       },
-      // @excalidraw/laser-pointer — transitive dep not hoisted to root
-      {
-        find: /^@excalidraw\/laser-pointer$/,
-        replacement: path.resolve(excalidrawDir, 'node_modules/@excalidraw/laser-pointer'),
-      },
+      // @excalidraw/math works from the installed npm package
     ],
   },
   plugins: [

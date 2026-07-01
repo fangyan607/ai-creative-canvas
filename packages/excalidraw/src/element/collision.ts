@@ -39,7 +39,7 @@ import {
 import {
   ellipse,
   ellipseLineIntersectionPoints,
-} from "@excalidraw/math/ellipse";
+} from "@excalidraw/math";
 import {
   deconstructDiamondElement,
   deconstructRectanguloidElement,

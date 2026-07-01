@@ -1,38 +1,171 @@
 @import "tailwindcss";
-@import "@xyflow/react/dist/style.css";
+@import "tw-animate-css";
 
-@theme {
-  --color-primary: #6c5ce7;
-  --color-primary-light: #a29bfe;
-  --color-ink: #1e1e1e;
-  --color-foreground: #1e1e1e;
-  --color-muted-foreground: #8e8e8e;
-  --color-surface: #ffffff;
-  --color-surface-secondary: #f5f5f5;
-  --color-surface-hover: #ebebeb;
-  --color-hairline: #e0e0e0;
-  --color-hairline-soft: #eaeaea;
-  --color-ring: #6c5ce7;
-  --color-success: #2ecc71;
-  --color-destructive: #e74c3c;
-  --color-socket-input: #6c5ce7;
-  --color-socket-output: #e17055;
-  --color-connection-valid: #2ecc71;
-  --color-connection-invalid: #e74c3c;
-  --color-node-prompt: #6c5ce7;
-  --color-node-text-to-image: #00b894;
-  --color-node-style: #fdcb6e;
-  --color-node-merge: #74b9ff;
-  --color-node-preview: #a29bfe;
+/* ============================================================
+   AI Creative Canvas — Design System
+   Inspired by: Figma marketing design language + Excalidraw hand-drawn warmth
+   Core philosophy: Monochrome black/white editorial frame + pastel accent blocks
+   ============================================================ */
 
-  --radius-pill: 9999px;
+/* ─── CSS Custom Properties (raw values consumed by shadcn/ui) ─── */
+:root {
+  /* Background / Surface */
+  --background: oklch(1 0 0);                    /* #ffffff */
+  --foreground: oklch(0.141 0.01 264.4);         /* near-black #1a1a2e */
+  --primary: oklch(0 0 0);                        /* #000000 — Figma black core */
+  --primary-foreground: oklch(1 0 0);            /* #ffffff */
+  --secondary: oklch(0.967 0.002 90);             /* #f7f7f5 */
+  --secondary-foreground: oklch(0.141 0.01 264.4);
+  --muted: oklch(0.967 0.002 90);                /* #f7f7f5 */
+  --muted-foreground: oklch(0.6 0.02 264.4);     /* soft gray */
+  --accent: oklch(0.92 0.04 265.7);               /* #a29bfe light purple accent */
+  --accent-foreground: oklch(0.141 0.01 264.4);
+  --destructive: oklch(0.577 0.245 27.33);        /* #ef4444 red */
+  --destructive-foreground: oklch(1 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.141 0.01 264.4);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.141 0.01 264.4);
+  --border: oklch(0.9 0.005 264.4);              /* #e6e6e6 — Figma hairline */
+  --input: oklch(0.9 0.005 264.4);
+  --ring: oklch(0 0 0);                           /* #000000 */
+
+  /* Radius — Figma-inspired scale */
+  --radius-xs: 2px;
+  --radius-sm: 6px;
   --radius-md: 8px;
-  --radius-lg: 12px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-pill: 50px;
 
-  --font-sans: 'Inter', 'system-ui', sans-serif;
+  /* Sidebar / Panel */
+  --sidebar-background: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.141 0.01 264.4);
+  --sidebar-primary: oklch(0 0 0);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.967 0.002 90);
+  --sidebar-accent-foreground: oklch(0.141 0.01 264.4);
+  --sidebar-border: oklch(0.9 0.005 264.4);
+  --sidebar-ring: oklch(0 0 0);
 }
 
-/* Reset full viewport */
+/* ─── Dark Mode (future — MVP stays light) ─── */
+.dark {
+  --background: oklch(0.141 0.01 264.4);
+  --foreground: oklch(0.985 0 0);
+  --primary: oklch(1 0 0);
+  --primary-foreground: oklch(0 0 0);
+  --secondary: oklch(0.27 0.015 264.4);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.27 0.015 264.4);
+  --muted-foreground: oklch(0.7 0.01 264.4);
+  --accent: oklch(0.37 0.04 265.7);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.577 0.245 27.33);
+  --destructive-foreground: oklch(1 0 0);
+  --popover: oklch(0.205 0.015 264.4);
+  --popover-foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0.015 264.4);
+  --card-foreground: oklch(0.985 0 0);
+  --border: oklch(0.35 0.01 264.4);
+  --input: oklch(0.35 0.01 264.4);
+  --ring: oklch(1 0 0);
+  --sidebar-background: oklch(0.205 0.015 264.4);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.247 281.9);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.27 0.015 264.4);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.35 0.01 264.4);
+  --sidebar-ring: oklch(0.488 0.247 281.9);
+}
+
+/* ─── Tailwind v4 Theme: Map CSS vars to Tailwind utilities ─── */
+@theme inline {
+  /* shadcn core */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Sidebar */
+  --color-sidebar-background: var(--sidebar-background);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Radii */
+  --radius-xs: var(--radius-xs);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-pill: var(--radius-pill);
+
+  /* Fonts */
+  --font-sans: 'Inter', 'system-ui', sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+
+  /* ─── Custom App Tokens ─── */
+
+  /* Surface colors */
+  --color-surface: #ffffff;
+  --color-surface-secondary: #f7f7f5;
+  --color-ink: #000000;
+  --color-hairline: #e6e6e6;
+  --color-hairline-soft: #f1f1f1;
+
+  /* Figma-inspired pastel block colors */
+  --color-block-lime: #dceeb1;
+  --color-block-lilac: #c5b0f4;
+  --color-block-cream: #f4ecd6;
+  --color-block-mint: #c8e6cd;
+  --color-block-pink: #efd4d4;
+  --color-block-coral: #f3c9b6;
+  --color-block-navy: #1f1d3d;
+
+  /* Node type accent colors (distinct visual identity per D-32) */
+  --color-node-prompt: #dceeb1;       /* Lime — text/input nodes */
+  --color-node-text-to-image: #c5b0f4; /* Lilac — generation nodes */
+  --color-node-style: #f4ecd6;        /* Cream — style/control nodes */
+  --color-node-merge: #c8e6cd;        /* Mint — composition nodes */
+  --color-node-preview: #efd4d4;      /* Pink — output/display nodes */
+
+  /* Semantic */
+  --color-success: #1ea64a;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+
+  /* Socket / Connection */
+  --color-socket-input: #6b7280;       /* Gray — input socket */
+  --color-socket-output: #000000;      /* Black — output socket */
+  --color-connection-valid: #1ea64a;   /* Green — valid connection preview */
+  --color-connection-invalid: #ef4444; /* Red — invalid connection preview */
+
+  /* Skeleton / Loading */
+  --color-skeleton: #e6e6e6;
+}
+
+/* ─── Base styles ─── */
 html, body, #root {
   margin: 0;
   padding: 0;
@@ -41,12 +174,58 @@ html, body, #root {
   overflow: hidden;
 }
 
-/* Hide Excalidraw chrome when canvas is disabled (node mode) */
-.canvas-disabled .App-menu,
-.canvas-disabled .help-icon,
-.canvas-disabled .reset-zoom-button,
-.canvas-disabled .layer-ui__wrapper {
-  opacity: 0 !important;
-  pointer-events: none !important;
-  transition: opacity 150ms ease;
+body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-ink);
+  background-color: var(--color-surface);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Focus ring global ─── */
+*:focus-visible {
+  outline: none;
+  ring: 2px solid var(--color-ring);
+  ring-offset: 2px;
+}
+
+/* ─── Scrollbar styling ─── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-hairline);
+  border-radius: var(--radius-pill);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted-foreground);
+}
+
+/* ─── React Flow overrides (Phase 2) ─── */
+.react-flow__node {
+  cursor: grab;
+}
+
+.react-flow__node:active {
+  cursor: grabbing;
+}
+
+/* Connection line preview */
+.react-flow__edge-path {
+  stroke-width: 2;
+}
+
+/* ─── Selection ring ─── */
+::selection {
+  background-color: var(--color-accent);
+  color: var(--color-accent-foreground);
 }
