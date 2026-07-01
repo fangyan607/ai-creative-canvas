@@ -39,6 +39,56 @@ export function createAiExecutor(
 ): Executor {
   const { providerStore } = deps
 
+  // Proxy mode: send HTTP request to backend instead of direct adapter call
+  // Per D-07: VITE_AI_PROXY_MODE=proxy routes all AI requests via backend
+  const isProxyMode = typeof import.meta !== 'undefined' &&
+    (import.meta as any).env?.VITE_AI_PROXY_MODE === 'proxy'
+
+  if (isProxyMode) {
+    return async (nodeData, inputs): Promise<ExecutorOutput> => {
+      const nodeId = (nodeData as any).__nodeId as string | undefined
+      const response = await fetch('/api/ai/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          providerId,
+          params: { ...nodeData },
+          __nodeId: nodeId,
+        }),
+      })
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({ error: response.statusText }))
+        if (nodeId) {
+          useEngineStore.getState().setNodeStatus(nodeId, 'error')
+          useEngineStore.getState().setNodeError(nodeId, err.error || 'AI generation failed')
+        }
+        throw new Error(err.error || `AI proxy returned ${response.status}`)
+      }
+
+      const data = await response.json()
+      if (!data.success || !data.result) {
+        throw new Error(data.error || 'Invalid response from AI proxy')
+      }
+
+      const output: ExecutorOutput = {
+        imageBlobId: data.result.imageBlobId,
+        width: data.result.width,
+        height: data.result.height,
+        seed: data.result.seed,
+        model: data.result.model,
+        timing: data.result.timing,
+        isStub: false,
+      }
+
+      if ((nodeData as any).nodeType === 'style') {
+        output.stylePreset = (nodeData as any).stylePreset ?? 'none'
+      }
+
+      return output
+    }
+  }
+
   return async (nodeData, inputs): Promise<ExecutorOutput> => {
     const nodeId = (nodeData as any).__nodeId as string | undefined
     const registry = AdapterRegistry.getInstance()

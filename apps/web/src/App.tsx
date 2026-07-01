@@ -10,6 +10,7 @@ import { LayerPanel } from './components/LayerPanel'
 import { useAutoSave } from './hooks/useAutoSave'
 import { useAutoExecute } from './hooks/useAutoExecute'
 import { useEngineStore } from './stores/engineStore'
+import { initSSE, useSSEProgress } from './services/useSSEProgress'
 import { useNodeGraphStore } from './stores/nodeGraphStore'
 import { useHistoryStore } from './stores/historyStore'
 import { NodeEditorOverlay } from '@ac-canvas/node-editor'
@@ -58,6 +59,7 @@ function App() {
 
   useAutoSave(projectId)
   useAutoExecute()
+  useSSEProgress()
 
   const handleProjectIdChange = useCallback((id: number) => {
     setProjectId(id)
@@ -83,6 +85,9 @@ function App() {
     // Initialize ProviderStore with Dexie backend
     initProviderStore()
     console.log('[Phase 5] ProviderStore initialized')
+
+    // Initialize SSE connection for proxy mode (no-op in direct mode)
+    initSSE()
   }, [])
 
   // Reserve Ctrl+Enter for future execution trigger (Phase 5)
