@@ -118,3 +118,12 @@ blocked: 1
 - **描述:** `@excalidraw/laser-pointer@1.3.1` 声明为依赖但 pnpm store 中包内容为空，导致 animated-trail.ts 加载时 500 错误
 - **严重程度:** 中
 - **临时修复:** 创建了最小桩模块使其能运行。需重新安装以获取完整包
+
+### ISSUE-001 修复状态: ✅ Fixed
+- ExportButton DropdownMenuTrigger 直接应用样式和 ChevronDown，移除内层 Button
+- TabbedSidebar 中 TooltipTrigger 直接接收 className 和 onClick，移除内层 button
+- 修复后烘焙 hydration error 完全消除
+
+### ISSUE-002 修复状态: ✅ Fixed
+- `pnpm install @excalidraw/laser-pointer@1.3.1` 正确安装，package.json 及 dist 文件到位
+- 桩模块保留作为回退备份
