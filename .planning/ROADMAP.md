@@ -1,155 +1,42 @@
 # Roadmap: AI Unlimited Creative Canvas (AI无限创意画布)
 
-## Overview
+## Milestones
 
-From foundation to full creative tool: we start by establishing the infinite canvas as the core rendering surface (Excalidraw fork with chunk rendering, element management, and IndexedDB persistence). Then we layer on the visual node editor (React Flow integration, 5 node types, parameter panel), followed by the DAG execution engine that makes nodes compute. With the editing pipeline in place, we integrate AI generation through a clean adapter pattern (OpenAI, Stability, MockAdapter) with BYOK support, then add the execution infrastructure (queue, SSE streaming, engine bridge). A lightweight Hono backend provides AI proxy and file services. The application UI phase wraps everything in a polished shell with project management, export, and settings. Finally, we lock in quality with comprehensive testing.
+- ✅ **v0.2 MVP** — Phases 1-8 (shipped 2026-07-02)
+- 📋 **v0.3** — Next milestone (planned)
 
 ## Phases
 
-- [x] **Phase 1: Core Canvas** - Excalidraw fork with infinite canvas, element management, undo/redo, chunk rendering, and IndexedDB persistence (completed 2026-06-29)
-- [ ] **Phase 2: Node Editor Interface** - React Flow integration with 5 node types, drag-connect, parameter panel, and graph serialization
-- [ ] **Phase 3: Node Engine** - Topological sort execution, parallel/incremental DAG execution, node undo/redo, and sub-group support
-- [ ] **Phase 4: AI Adapters** - OpenAI and Stability.ai adapters, MockAdapter, BYOK mode, and Prompt builder system
-- [ ] **Phase 5: AI Execution Infrastructure** - Request queue with rate limiting, SSE progress streaming, and node-engine-to-AI bridge
-- [x] **Phase 6: Backend Services** - Hono-based AI proxy API and file upload/download service (completed 2026-07-01)
-- [x] **Phase 7: Application UI** - Toolbar/sidebar/panel shell, canvas export, project management page, and settings page (completed 2026-07-01)
-- [ ] **Phase 8: Testing & Performance** - Node engine unit tests, AI adapter mock tests, core E2E flow tests
+<details>
+<summary>✅ v0.2 MVP (Phases 1-8) — SHIPPED 2026-07-02</summary>
 
-## Phase Details
+- [x] Phase 1: Core Canvas (6/6 plans) — completed 2026-06-29
+- [x] Phase 2: Node Editor Interface (5/5 plans) — completed 2026-06-29
+- [x] Phase 3: Node Engine (5/5 plans) — completed 2026-06-30
+- [x] Phase 4: AI Adapters (6/6 plans) — completed 2026-07-01
+- [x] Phase 5: AI Execution Infrastructure (3/3 plans) — completed 2026-07-01
+- [x] Phase 6: Backend Services (2/2 plans) — completed 2026-07-01
+- [x] Phase 7: Application UI (3/3 plans) — completed 2026-07-01
+- [x] Phase 8: Testing & Performance (4/4 plans) — completed 2026-07-02
 
-### Phase 1: Core Canvas
-**Goal**: Users have a performant, persistent infinite canvas with full element management
-**Depends on**: Nothing (first phase)
-**Requirements**: CANVAS-01, CANVAS-02, CANVAS-03, CANVAS-04, CANVAS-05, CANVAS-06
-**Success Criteria** (what must be TRUE):
-  1. User can pan, zoom, draw basic shapes, and drag elements freely on an infinite canvas
-  2. User can manage element layers (reorder, group, lock, hide) with visual feedback
-  3. User can undo/redo all canvas operations (draw, move, delete, layer change)
-  4. User can save a project to IndexedDB and reload it to restore exact canvas state
-  5. Canvas maintains smooth 60fps with 500+ elements rendered (chunk rendering active)
-**Plans**: 6 plans in 4 waves
-**UI hint**: yes
-**Plan list:**
-- [x] 01-01-PLAN.md — Monorepo foundation: pnpm workspace, vendored Excalidraw fork, shared types, Vite 8 SPA skeleton
-- [x] 01-02-PLAN.md — Stores & AIElement: CanvasStore, HistoryStore, AIElement type in Excalidraw, store stubs, tests
-- [x] 01-03-PLAN.md — Canvas bridge: CanvasWrapper (Excalidraw + Zustand), App integration, keyboard undo/redo
-- [x] 01-04-PLAN.md — Layer panel: CanvasStore layer ordering, LayerPanel component with reorder/lock/hide/group
-- [x] 01-05-PLAN.md — Performance: chunk rendering (2000x2000px), resolution-tiered AIElement, LRU image cache (200MB)
-- [x] 01-06-PLAN.md — Persistence: Dexie.js IndexedDB, project save/load, auto-save (180ms), Save/Save As UI
+</details>
 
-### Phase 2: Node Editor Interface
-**Goal**: Users can visually create and connect a node-based editing workflow on the canvas
-**Depends on**: Phase 1
-**Requirements**: NODE-01, NODE-02, NODE-04, NODE-05
-**Success Criteria** (what must be TRUE):
-  1. User can drag 5 node types (PromptNode, TextToImageNode, StyleNode, MergeNode, PreviewNode) onto the editor and position them freely
-  2. User can connect node output sockets to compatible input sockets with visible wires
-  3. User can select a node and see/edit all its parameters in the right-side parameter panel
-  4. User can save a node graph layout and reload it with all nodes, wires, and positions restored
-**Plans**: 5 plans in 4 waves
-**UI hint**: yes
-**Plan list:**
-- [x] 02-01-PLAN.md — Contracts + branding: shared node graph types, coordinate transforms, Chinese README, Excalidraw sync check (Wave 1)
-- [x] 02-02-PLAN.md — NodeGraphStore: full Zustand+Immer store with tests, delete stub (Wave 2)
-- [x] 02-03-PLAN.md — Node editor package: @ac-canvas/node-editor, 5 node components, ConnectionValidator (Wave 2)
-- [x] 02-04-PLAN.md — Interactive UI: NodeEditorOverlay, PropertyPanel, FocusModeToggle, TemplateDialog (Wave 3)
-- [x] 02-05-PLAN.md — Integration: persistence, HistoryStore, App.tsx layout wiring, checkpoint verification (Wave 4)
+### 📋 v0.3 (Planned)
 
-### Phase 3: Node Engine
-**Goal**: Node graphs execute in correct topological order with incremental updates and organizational structure
-**Depends on**: Phase 2
-**Requirements**: NODE-03, NODE-06, NODE-07
-**Success Criteria** (what must be TRUE):
-  1. After connecting nodes and triggering execution, the engine processes nodes in correct topological order and completes all downstream nodes
-  2. Changing one node's parameter re-executes only the affected downstream path (dirty-path marking), not the entire graph
-  3. User can group nodes into named sub-groups to organize complex graphs, with collapse/expand
-  4. Node graph operations (add, delete, connect, disconnect) support undo/redo alongside canvas undo/redo
-**Plans**: 5 plans in 3 waves
-**UI hint**: yes
-**Plan list:**
-- [x] 03-01-PLAN.md — Types & Contracts: parentId, GroupNodeData, ExecutionStatus, engine type system (Wave 1)
-- [x] 03-02-PLAN.md — Engine Core: toExecutionLayers, findAffectedDownstream, NodeEngine, EngineStore, stub resolvers, unit tests (Wave 2)
-- [x] 03-03-PLAN.md — GroupNode + Status UI: GroupNode component with collapse/expand, BaseNode status indicator (Wave 2)
-- [x] 03-04-PLAN.md — Store Extensions: NodeGraphStore group CRUD, HistoryStore engine state (Wave 2)
-- [ ] 03-05-PLAN.md — Wiring + Verification: useAutoExecute, NodeEditorOverlay integration, App.tsx, checkpoint (Wave 3)
-
-### Phase 4: AI Adapters
-**Goal**: System generates images through multiple AI providers via a clean adapter pattern with user-owned keys
-**Depends on**: Nothing (can be developed in parallel with Phases 2-3)
-**Requirements**: AI-01, AI-02, AI-03, AI-05, AI-06
-**Success Criteria** (what must be TRUE):
-  1. User can select an AI provider (MockAdapter, OpenAI DALL-E 3, or Stability.ai) from a dropdown and generate a text-to-image result
-  2. User can configure a custom API key and base URL for each provider (BYOK mode)
-  3. User can use provided prompt templates to construct effective generation prompts with variable substitution
-  4. Changing between AI providers does not require code changes or restarts (adapter interface is stable)
-  5. While offline or during development, MockAdapter returns realistic test images without any API call
-**Plans**: TBD
-
-### Phase 5: AI Execution Infrastructure
-**Goal**: AI tasks flow from the node engine through a managed queue with real-time progress streaming back to the canvas
-**Depends on**: Phase 4, Phase 3
-**Requirements**: AI-04, AI-07, AI-08
-**Success Criteria** (what must be TRUE):
-  1. Multiple AI requests queue and execute sequentially within configured rate limits (no concurrent overrun)
-  2. User sees real-time generation progress in the UI via SSE events (queued -> processing -> chunk -> done)
-  3. AI-generated images automatically appear as AIElement instances on the canvas when generation completes
-  4. The TextToImageNode and StyleNode correctly pass their parameters through the engine bridge to AI adapters and receive results back
-**Plans**: TBD
-
-### Phase 6: Backend Services
-**Goal**: Backend proxies AI requests to hide client-side API keys and handles file storage
-**Depends on**: Nothing (independent service; can be developed anytime)
-**Requirements**: BKND-01, BKND-02
-**Success Criteria** (what must be TRUE):
-  1. Client sends AI generation requests through the backend proxy; API keys remain server-side only
-  2. User can upload image files to the backend and download them later
-  3. Frontend works in both direct-API-key mode (dev) and backend-proxy mode (production) with a configuration toggle
-**Plans**: TBD
-
-### Phase 7: Application UI
-**Goal**: Complete application experience with project management, export, and configuration
-**Depends on**: Phase 1, Phase 5 (needs working canvas and AI pipeline for full integration)
-**Requirements**: UI-01, UI-02, UI-03, UI-04
-**Success Criteria** (what must be TRUE):
-  1. User sees a consistent application shell with toolbar, resizable sidebar, and asset panel
-  2. User can create a new project, browse a project list, open an existing project, save changes, and delete projects
-  3. User can export the current canvas as PNG or JPG with configurable resolution
-  4. User can navigate to a settings page and configure AI API keys, default provider, and other preferences
-**Plans**: 3 plans in 2 waves
-**Plan list:**
-- [x] 07-01-PLAN.md — Foundation: UIPrefsStore, shortcuts, dark mode, AppShell layout, TabbedSidebar, CanvasPage, slider refactor (Wave 1)
-- [x] 07-02-PLAN.md — Projects + Export: ProjectsPage with grid CRUD, ExportButton+ExportDialog, ProgressPanel, ExecutionLog (Wave 2)
-- [x] 07-03-PLAN.md — Settings + Tools: SettingsPage, PromptEditor, ShortcutPanel, keyboard shortcut wiring (Wave 3)
-
-### Phase 8: Testing & Performance
-**Goal**: Critical paths and edge cases are covered by automated tests
-**Depends on**: Phase 3 (node engine tests), Phase 4 (AI adapter tests), Phase 5/7 (E2E flow)
-**Requirements**: TEST-01, TEST-02, TEST-03
-**Success Criteria** (what must be TRUE):
-  1. Node engine unit tests pass: topological sort handles linear, branched, and cyclic graphs; dirty-path marking correctly identifies affected nodes
-  2. AI adapter mock tests pass: each provider adapter returns expected output shapes; MockAdapter returns valid test images
-  3. Core E2E flow passes: create project -> add nodes -> connect nodes -> trigger AI generation -> see result on canvas -> export as PNG
-  4. All tests run in CI without external API calls or network dependencies (CI deferred to v0.2 per D-08)
-**Plans**: 4 plans in 2 waves
-**Plan list:**
-- [x] 08-01-PLAN.md — Test Infrastructure: vitest workspace, node-editor config, root test scripts, coverage setup (Wave 1)
-- [x] 08-02-PLAN.md — E2E Testing: Playwright install + config + core flow spec (Wave 1)
-- [x] 08-03-PLAN.md — Performance Benchmarks: topo sort, 500+ elements, LRU cache .perf.ts files (Wave 2, depends on 08-01)
-- [x] 08-04-PLAN.md — Test Gap Filling: useAutoExecute, useAutoSave, resolvers tests (Wave 2, depends on 08-01)
+- [ ] Phase 9: TBD — Next milestone
+- [ ] Phase 10: TBD
 
 ## Progress
 
-**Execution Order:** Phases execute in numeric order (1 through 8). Phases 4 and 6 have no dependency on prior phases and could be parallelized if needed.
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|:-------------:|--------|-----------|
+| 1. Core Canvas | v0.2 | 6/6 | Complete | 2026-06-29 |
+| 2. Node Editor Interface | v0.2 | 5/5 | Complete | 2026-06-29 |
+| 3. Node Engine | v0.2 | 5/5 | Complete | 2026-06-30 |
+| 4. AI Adapters | v0.2 | 6/6 | Complete | 2026-07-01 |
+| 5. AI Execution Infrastructure | v0.2 | 3/3 | Complete | 2026-07-01 |
+| 6. Backend Services | v0.2 | 2/2 | Complete | 2026-07-01 |
+| 7. Application UI | v0.2 | 3/3 | Complete | 2026-07-01 |
+| 8. Testing & Performance | v0.2 | 4/4 | Complete | 2026-07-02 |
 
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 1. Core Canvas | 6/6 | Complete    | 2026-06-29 |
-| 2. Node Editor Interface | 0/5 | Not started | - |
-| 3. Node Engine | 0/5 | Not started | - |
-| 4. AI Adapters | 0/0 | Not started | - |
-| 5. AI Execution Infrastructure | 0/0 | Not started | - |
-| 6. Backend Services | 2/2 | Complete    | 2026-07-01 |
-| 7. Application UI | 3/3 | Complete    | 2026-07-01 |
-| 8. Testing & Performance | 0/4 | Not started | - |
-
-*Updated after each plan completion*
+*Archived details: [milestones/v0.2-ROADMAP.md](milestones/v0.2-ROADMAP.md)*
