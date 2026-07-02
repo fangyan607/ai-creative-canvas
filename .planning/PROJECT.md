@@ -18,6 +18,9 @@
 - [x] **NODE-01**: 用户可以拖拽节点到编辑器并连线形成创作流程 *— Validated in Phase 2 (Node Editor Interface)*
 - [x] **NODE-02**: 系统提供 PromptNode、TextToImageNode、StyleNode、MergeNode、PreviewNode 等节点类型 *— Validated in Phase 2 (Node Editor Interface)*
 - [x] **NODE-05**: 用户可以在参数面板调节节点参数 *— Validated in Phase 2 (Node Editor Interface)*
+- [x] **TEST-01**: 节点引擎核心逻辑单元测试覆盖 *— Validated in Phase 8 (Testing & Performance)*
+- [x] **TEST-02**: AI 适配器 Mock 测试覆盖 *— Validated in Phase 8 (Testing & Performance)*
+- [x] **TEST-03**: 核心 E2E 流程测试覆盖 *— Validated in Phase 8 (Testing & Performance)*
 
 ### Active
 
@@ -37,9 +40,6 @@
 - [ ] **BKND-01**: 后端提供 AI 代理 API，隐藏 API Key
 - [ ] **BKND-02**: 后端支持文件上传/下载
 - [ ] **BKND-03**: 后端提供基础 JWT 认证
-- [ ] **TEST-01**: 节点引擎单元测试覆盖核心逻辑
-- [ ] **TEST-02**: AI 适配器 Mock 测试
-- [ ] **TEST-03**: 核心 E2E 流程测试通过
 
 ### Out of Scope
 
@@ -53,7 +53,7 @@
 
 ## Context
 
-- **项目状态**: Phase 1 (Core Canvas) 完成 ✓ — Excalidraw 无限画布、HistoryStore 撤销/重做、IndexedDB 持久化、LRU 图片缓存已实现。Phase 2 (Node Editor Interface) 完成 ✓ — 5 节点类型、NodeGraphStore 状态管理、PropertyPanel 参数面板、ConnectionValidator 连线验证、2 模板、IndexedDB 集成。
+- **项目状态**: Phase 8 (Testing & Performance) 完成 ✓ — 418 个测试覆盖 38 个文件，E2E 流程测试通过，性能基准已建立。
 - **开发模式**: 单人全栈 TypeScript 开发，采用 GSD + CodeGraph + GStack 精确开发工作流
 - **技术选型**: 已通过 ADR 完成全部 10 项关键决策，技术栈已锁定
 - **MVP 定位**: v0.1 聚焦无限画布 + 节点编辑器 + AI 文生图/图生图的核心闭环验证
@@ -101,4 +101,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-30 — Phase 1 (Core Canvas) and Phase 2 (Node Editor Interface) complete*
+*Last updated: 2026-07-02 — Phase 8 (Testing & Performance) complete*
