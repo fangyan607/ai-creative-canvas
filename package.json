@@ -6,13 +6,21 @@
     "dev": "pnpm --filter @ac-canvas/web dev",
     "build": "pnpm --filter @ac-canvas/web build",
     "lint": "pnpm -r lint",
-    "typecheck": "pnpm -r typecheck"
+    "typecheck": "pnpm -r typecheck",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui",
+    "test:perf": "vitest bench --run"
   },
   "engines": {
     "node": ">=22.12.0"
   },
   "devDependencies": {
     "@braintree/sanitize-url": "6.0.1",
+    "@vitest/coverage-v8": "^4.1.9",
+    "@vitest/ui": "^4.1.9",
+    "jsdom": "^29.1.1",
     "sass": "^1.101.0",
     "typescript": "^5.0.2",
     "vitest": "^4.1.9"
