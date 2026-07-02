@@ -6,3 +6,4 @@ design-md/
 apps/backend/uploads/
 .claude/worktrees/
 .gstack/
+playwright-report/
