@@ -132,10 +132,10 @@ From foundation to full creative tool: we start by establishing the infinite can
   4. All tests run in CI without external API calls or network dependencies (CI deferred to v0.2 per D-08)
 **Plans**: 4 plans in 2 waves
 **Plan list:**
-- [ ] 08-01-PLAN.md — Test Infrastructure: vitest workspace, node-editor config, root test scripts, coverage setup (Wave 1)
-- [ ] 08-02-PLAN.md — E2E Testing: Playwright install + config + core flow spec (Wave 1)
-- [ ] 08-03-PLAN.md — Performance Benchmarks: topo sort, 500+ elements, LRU cache .perf.ts files (Wave 2, depends on 08-01)
-- [ ] 08-04-PLAN.md — Test Gap Filling: useAutoExecute, useAutoSave, resolvers tests (Wave 2, depends on 08-01)
+- [x] 08-01-PLAN.md — Test Infrastructure: vitest workspace, node-editor config, root test scripts, coverage setup (Wave 1)
+- [x] 08-02-PLAN.md — E2E Testing: Playwright install + config + core flow spec (Wave 1)
+- [x] 08-03-PLAN.md — Performance Benchmarks: topo sort, 500+ elements, LRU cache .perf.ts files (Wave 2, depends on 08-01)
+- [x] 08-04-PLAN.md — Test Gap Filling: useAutoExecute, useAutoSave, resolvers tests (Wave 2, depends on 08-01)
 
 ## Progress
 
