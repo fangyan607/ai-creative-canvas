@@ -129,8 +129,13 @@ From foundation to full creative tool: we start by establishing the infinite can
   1. Node engine unit tests pass: topological sort handles linear, branched, and cyclic graphs; dirty-path marking correctly identifies affected nodes
   2. AI adapter mock tests pass: each provider adapter returns expected output shapes; MockAdapter returns valid test images
   3. Core E2E flow passes: create project -> add nodes -> connect nodes -> trigger AI generation -> see result on canvas -> export as PNG
-  4. All tests run in CI without external API calls or network dependencies
-**Plans**: TBD
+  4. All tests run in CI without external API calls or network dependencies (CI deferred to v0.2 per D-08)
+**Plans**: 4 plans in 2 waves
+**Plan list:**
+- [ ] 08-01-PLAN.md — Test Infrastructure: vitest workspace, node-editor config, root test scripts, coverage setup (Wave 1)
+- [ ] 08-02-PLAN.md — E2E Testing: Playwright install + config + core flow spec (Wave 1)
+- [ ] 08-03-PLAN.md — Performance Benchmarks: topo sort, 500+ elements, LRU cache .perf.ts files (Wave 2, depends on 08-01)
+- [ ] 08-04-PLAN.md — Test Gap Filling: useAutoExecute, useAutoSave, resolvers tests (Wave 2, depends on 08-01)
 
 ## Progress
 
@@ -145,6 +150,6 @@ From foundation to full creative tool: we start by establishing the infinite can
 | 5. AI Execution Infrastructure | 0/0 | Not started | - |
 | 6. Backend Services | 2/2 | Complete    | 2026-07-01 |
 | 7. Application UI | 3/3 | Complete    | 2026-07-01 |
-| 8. Testing & Performance | 0/0 | Not started | - |
+| 8. Testing & Performance | 0/4 | Not started | - |
 
 *Updated after each plan completion*
